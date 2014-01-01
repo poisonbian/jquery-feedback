@@ -25,15 +25,18 @@
 	$.fn.feedback.pluginName = "feedback";
 	$.fn.feedback.defaults = {    
 		'unit'		: 'div,span,p,h1,h2,h3,h4,h5,h6,td,th,tr,table,a,strong,em,input,i,button,textarea,b,img',
-		'background': "#FFFF00",
-		'opacity'	: 60,	// 透明度
-		'tempbackground': "#00FF00",
-		'tempopacity'	: 60,
+		'background': "#00FF00",	// 鼠标点击后的样式 
+		'opacity'	: 50,	// 透明度
+		'tempbackground': "#FFFF00",	// 鼠标经过时的样式
+		'tempopacity'	: 50,
 		'zIndex'	: 1000,	// zindex
 		'minwidth'	: 0,	// 可点选元素的最小宽度
 		'maxwidth'	: 2000,	// 可点选元素的最大宽度
 		'minheight'	: 0,	// 可点选元素的最小高度
 		'maxheight'	: 200,	// 可点选元素的最大高度
+		'mintext'	: 0,	// 可点选元素的最少字数
+		'maxtext'	: 2000000,	//可点选元素的最大字数
+		'allowsub'	: true,	// 选中父元素之后，是否还保留子元素
 		/* 以下一般不需要修改 */
 		'shadeidprefix'	: 'fb_shade_',		// shade元素的id前缀
 		'closeidprefix'	: 'fb_close_',		// close元素的id前缀
@@ -48,6 +51,9 @@
 		
 		'mouseover': function (e) {
 			mouseover(e, $(this));
+		},
+		'mouseout'	: function (e) {
+			mouseout(e, $(this));
 		},
 		'mousedown'	: function (e) {
 			mousedown(e, $(this));
@@ -89,6 +95,7 @@
 	function bind_event(obj, settings)
 	{   		
 		obj.mouseover(obj.data($.fn.feedback.pluginName).mouseover);
+		obj.mouseout(obj.data($.fn.feedback.pluginName).mouseout);
 		obj.mousedown(obj.data($.fn.feedback.pluginName).mousedown);
 	}
 	
@@ -99,14 +106,6 @@
 		{
 			return target.attr("shade");
 		}
-		
-//		for (var i in $.fn.feedback.target)
-//		{
-//			if ($.fn.feedback.target[i] == target)
-//			{
-//				return -1;
-//			}
-//		}
 		
 		//不符合要求
 		var flag = false;
@@ -124,9 +123,12 @@
 		//不符合要求
 		var width = target.width();
 		var height = target.height();
-//		console.log(settings);
+		var length = target.text().length;
+		console.log(length);
+
 		if (width < settings.minwidth || width > settings.maxwidth
-				|| height < settings.minheight || height > settings.maxheight)
+				|| height < settings.minheight || height > settings.maxheight
+				|| length < settings.mintext || length > settings.maxtext)
 		{
 			return -1;
 		}
@@ -158,10 +160,11 @@
 	    	shade.style.opacity = opacity / 100;
 	    }
 	    
-	    $(shade).attr("shade", shade_id);
-	    $(shade).addClass(settings.feedbackclass);
-	    $(shade).attr("id", settings.shadeidprefix + $.fn.feedback.index);
-	    $(shade).attr("index", $.fn.feedback.index);
+	    shade = $(shade);
+	    shade.attr("shade", shade_id);
+	    shade.addClass(settings.feedbackclass);
+	    shade.attr("id", settings.shadeidprefix + $.fn.feedback.index);
+	    shade.attr("index", $.fn.feedback.index);
 	    return shade;
 	}
 	
@@ -186,15 +189,15 @@
 		shade.style.top = t + "px";
 		shade.style.zIndex = settings.zIndex + 1;
 	    
-	    $(shade).html(settings.closetext);
-
-	    $(shade).attr("shade", shade_id);
-	    $(shade).css('font-size', settings.closefontsize);
-	    $(shade).css('font-weight', settings.closefontweight);
-	    $(shade).addClass(settings.closeclass);
-	    $(shade).attr("id", settings.closeidprefix + $.fn.feedback.index);
-	    $(shade).attr("index", $.fn.feedback.index);
-	    $(shade).attr("close", shade_id);
+		shade = $(shade);
+	    shade.html(settings.closetext);
+	    shade.attr("shade", shade_id);
+	    shade.css('font-size', settings.closefontsize);
+	    shade.css('font-weight', settings.closefontweight);
+	    shade.addClass(settings.closeclass);
+	    shade.attr("id", settings.closeidprefix + $.fn.feedback.index);
+	    shade.attr("index", $.fn.feedback.index);
+	    shade.attr("close", shade_id);
 	    return shade;
 	}
 	
@@ -205,13 +208,12 @@
 		$("#" + settings.shadeidprefix + index).remove();
 		delete($.fn.feedback.target[index]);
 		delete($.fn.feedback.shade[index]);
-		delete($.fn.feedback.close[index])
+		delete($.fn.feedback.close[index]);
 	}
 	
-	function mouseover(e, obj) {
+	function mouseout(e, obj) {
 		var target = $(e.target);
-		// target没有变化，或者是其覆盖元素
-		if (e.target == $.fn.feedback.target_temp || e.target == $.fn.feedback.shade_temp || e.target == $.fn.feedback.close_temp)
+		if ($.fn.feedback.target_temp != undefined && target[0] == ($.fn.feedback.target_temp)[0])// || e.target == $.fn.feedback.shade_temp || e.target == $.fn.feedback.close_temp)
 		{
 			return;
 		}
@@ -219,11 +221,30 @@
 		// 移除原有的记录
 		if ($.fn.feedback.target_temp != undefined)
 		{
-			$($.fn.feedback.shade_temp).remove();
-			$($.fn.feedback.close_temp).remove();
+			$.fn.feedback.shade_temp.remove();
+			$.fn.feedback.close_temp.remove();
+		}
+	}
+	
+	function mouseover(e, obj) {
+		var target = $(e.target);
+
+		// target变成了其覆盖元素
+		if (($.fn.feedback.shade_temp != undefined && $.fn.feedback.close_temp != undefined)
+				&&
+				(target[0] == ($.fn.feedback.shade_temp)[0] || target[0] == ($.fn.feedback.close_temp)[0]))
+		{
+			return;
 		}
 		
 		var settings = obj.data($.fn.feedback.pluginName);
+			
+		// 移除原有的记录
+		if ($.fn.feedback.target_temp != undefined)
+		{
+			$.fn.feedback.shade_temp.remove();
+			$.fn.feedback.close_temp.remove();
+		}
 		
 		var valid = is_valid(target, settings);
 		if (valid < 0)
@@ -238,17 +259,44 @@
 		//1表示临时
 		var shade = getShade(target, settings, $.fn.feedback.SHADE_TEMP);
 		var close = getClose(target, settings, $.fn.feedback.SHADE_TEMP);
+		close.hide();
 		
-		$.fn.feedback.target_temp = e.target;
+		//临时保存的都是dom元素
+		$.fn.feedback.target_temp = target;
 		$.fn.feedback.shade_temp = shade;
 		$.fn.feedback.close_temp = close;
 		
-	    document.body.appendChild(shade);
-	    document.body.appendChild(close);
+	    $("body").append(shade);
+	    $("body").append(close);
 	}
+	
+	function find_child(parentObj)
+	{ 
+		var obj;
+		var children = new Array();
+		for (var i in $.fn.feedback.target)
+		{
+			if ($.fn.feedback.target[i] == undefined)
+			{
+				continue;
+			}
+			obj = ($.fn.feedback.target[i])[0];
+			while (obj != undefined && obj != null && obj.tagName.toLowerCase() != 'body')
+			{ 
+				if (obj == parentObj)
+				{
+					children.push($.fn.feedback.shade[i]);
+					break;
+				} 
+				obj = obj.parentNode; 
+			} 
+		}
+		return children;
+	} 
 	
 	function mousedown(e, obj) {
 		var target = $(e.target);
+		
 		if (target.attr("shade") != $.fn.feedback.SHADE_TEMP)
 		{
 			return;
@@ -256,7 +304,7 @@
 		
 		var settings = obj.data($.fn.feedback.pluginName);
 		
-		if (target.attr("close") == 1)
+		if (target.attr("close") == $.fn.feedback.SHADE_CLICK)
 		{
 			remove_shade(target, settings);
 			return;
@@ -265,9 +313,20 @@
 		var shade = $.fn.feedback.shade_temp;
 		var close = $.fn.feedback.close_temp;
 		
-		$(shade).css("background-color", settings.background);
-		$(close).css("opacity", settings.opacity);
+		shade.css("background-color", settings.background);
+		close.css("opacity", settings.opacity);
+		shade.attr("shade", $.fn.feedback.SHADE_CLICK);
+		close.attr("close", $.fn.feedback.SHADE_CLICK);
+		close.show();
 		
+		if (!settings.allowsub)
+		{
+			var shade_children = find_child(($.fn.feedback.target_temp)[0]);
+			for (var i in shade_children)
+			{
+				remove_shade(shade_children[i], settings);
+			}
+		}
 		$.fn.feedback.target.push($.fn.feedback.target_temp);
 		$.fn.feedback.target_temp = undefined;
 		$.fn.feedback.shade.push(shade);
