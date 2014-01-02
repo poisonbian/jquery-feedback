@@ -1,11 +1,16 @@
 var fb;
 $(document).ready(function() {
-	fb = $("body");
-	fb.feedback({'closeposition':'left-up', 'allowsub':false});
-	fb.feedback("getHtml", fb);
-//	console.log(feedback.feedback('getHtml'));
-//	console.log(feedback.getHtml());
-//	$("body").feedback.setOption({'unit': 'test'});
-//	console.log($("body").feedback().getOption());
-//	$("body").feedback.start();
+	fb = $("body").feedback({
+		'initdialog':"#feedback",
+		'dialogtopid':'#container_drag_top',
+		'dialogid':'#container_drag',
+		'closeposition':'left-up', 
+		'allowsub':false, 
+		'mintext':1,
+		'onmousedown': function (e) {
+	}});
+	
+//	fb.feedback.init();
+//	fb.feedback.start();
+//	alert(fb.feedback.getHtml());
 });

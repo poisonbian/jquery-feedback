@@ -1,125 +1,321 @@
 (function($) {	
 	$.fn.feedback = function(options) {
-//		console.log(options);
-//		if (typeof (options) == "string")
-//		{
-//			var $this = $(this);
-//			var _arguments = Array.prototype.slice.call( arguments );
-//			console.log(_arguments.slice( 1, _arguments.length ) );
-//			$.fn.feedback.apply(
-//					options,
-//					_arguments.slice( 1, _arguments.length ) );
-////			return;
-//		}
+		$.fn.feedback.$this = $(this);
+		
+		var $this = $(this);
 		var settings = $(this).data($.fn.feedback.pluginName);
 		//如果获取settings失败，则根据options和default创建它
-		if (typeof(settings) === "undefined") {
+		if (settings === undefined) {
 			settings = $.extend({}, $.fn.feedback.defaults, options); 
 			// 保存我们新创建的settings
 			$(this).data($.fn.feedback.pluginName, settings);
 		}
 		
-		var unit = settings.unit;
-		$.fn.feedback.unit = unit.split(",");
-		for (var i = 0; i < $.fn.feedback.unit.length; i++)
-		{
-			$.fn.feedback.unit[i] = $.fn.feedback.unit[i].replace(/(^\s*)|(\s*$)/g, "").toLowerCase();
-		}
-	    
-	    bind_event($(this), settings);
+		// 初始化反馈对话框
+		$this.feedback.init = function () {
+			settings.beforeinit === undefined || settings.beforeinit();
+			if (settings.dialogid != undefined && settings.dialogtopid != undefined)
+			{
+				drag_jq(settings.dialogtopid, settings.dialogid);
+				$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
+				$(settings.dialogid).find("*").attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
+				$(settings.dialogid).find(".cancel").live('click', function () {
+					settings.beforecancel === undefined || settings.beforecancel();
+					click_cancel($this, settings);
+					settings.aftercancel === undefined || settings.aftercancel();
+				});
+				
+				$(settings.dialogid).show();
+			}
+			settings.afterinit === undefined || settings.afterinit();
+		};
+		
+		// 开始进行反馈标注
+		$this.feedback.start = function () {
+			settings.beforestart === undefined || settings.beforestart();
+			var unit = settings.unit;
+			$.fn.feedback.unit = unit.split(",");
+			for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
+			{
+				$.fn.feedback.unit[i] = trim($.fn.feedback.unit[i]).toLowerCase();
+			}
+		    
+		    bind_event($this, settings);
+		    settings.afterstart === undefined || settings.afterstart();
+		};
+		
+		// 结束反馈标注
+		$this.feedback.stop = function () {
+			settings.beforestop === undefined || settings.beforestop();
+			remove_all_tags($this, settings);
+		    unbind_event($this, settings);
+		    settings.afterstop === undefined || settings.afterstop();
+		};
+		
+		init_dialog($this, settings);
+		return $this;
 	}; 
 	
+	/**
+	 * 初始化dialog的操作
+	 * @param $this
+	 * @param settings
+	 * @returns
+	 */
+	function init_dialog($this, settings)
+	{
+		if (settings.dialogid != undefined)
+		{
+			$(settings.dialogid).addClass(settings.dialogclass);
+			$(settings.dialogid).hide();
+		}
+		if (settings.dialogtopid != undefined)
+		{
+			$(settings.dialogtopid).addClass(settings.dialogtopclass);
+		}
+		
+		if (settings.initdialog != undefined)
+		{
+			$(settings.initdialog).click(function (e) {
+				e.preventDefault();
+				$.fn.feedback.init();
+				$this.feedback.start();
+			});
+		}
+
+		init_dialog_button($this, settings);
+	}
+	
+	/**
+	 * 点击取消按钮
+	 * @param $this
+	 * @param settings
+	 * @returns
+	 */
+	function click_cancel($this, settings)
+	{
+		$(settings.dialogid).hide();
+		$this.feedback.stop();
+	}
+	
+	/**
+	 * 初始化反馈对话框中的按钮
+	 * @param $this
+	 * @param settings
+	 * @returns
+	 */
+	function init_dialog_button($this, settings)
+	{
+		$(settings.dialogid).append($.fn.feedback.dialog_button_html);
+	}
+	
 	$.fn.feedback.pluginName = "feedback";
-	$.fn.feedback.defaults = {    
-		'unit'		: 'div,span,p,h1,h2,h3,h4,h5,h6,td,th,tr,table,a,strong,em,input,i,button,textarea,b,img',
+	$.fn.feedback.defaults = {
+		/** 和样式相关的配置 **/
+		'unit'		: 'div,span,p,h1,h2,h3,h4,h5,h6,td,th,tr,table,a,strong,em,input,i,button,textarea,b,img,hr',	// 允许的标签
 		'background': "#00FF00",	// 鼠标点击后的样式 
-		'opacity'	: 50,	// 透明度
+		'opacity'	: 50,			// 鼠标点击后的透明度
+		'border'		: undefined, // shade元素边框样式, 样例："1px solid #000000",
 		'tempbackground': "#FFFF00",	// 鼠标经过时的样式
-		'tempopacity'	: 50,
-		'zIndex'	: 1000,	// zindex
-		'minwidth'	: 0,	// 可点选元素的最小宽度
-		'maxwidth'	: 2000,	// 可点选元素的最大宽度
-		'minheight'	: 0,	// 可点选元素的最小高度
-		'maxheight'	: 200,	// 可点选元素的最大高度
-		'mintext'	: 0,	// 可点选元素的最少字数
+		'tempopacity'	: 50,			// 鼠标经过时的透明度
+		'tempborder'	: undefined,	// 鼠标经过时的shade元素边框样式
+		'zIndex'	: 1000,		// shade元素的zindex，close元素的zindex=zIndex+1
+		'minwidth'	: 0,		// 可点选元素的最小宽度
+		'maxwidth'	: 2000,		// 可点选元素的最大宽度
+		'minheight'	: 0,		// 可点选元素的最小高度
+		'maxheight'	: 200,		// 可点选元素的最大高度
+		'mintext'	: 0,		// 可点选元素的最少字数
 		'maxtext'	: 2000000,	//可点选元素的最大字数
-		'allowsub'	: true,	// 选中父元素之后，是否还保留子元素
-		/* 以下一般不需要修改 */
-		'shadeidprefix'	: 'fb_shade_',		// shade元素的id前缀
-		'closeidprefix'	: 'fb_close_',		// close元素的id前缀
+		'allowsub'	: true,		// 选中父元素之后，是否还保留子元素
+		
+		/** 和弹出dialog相关的配置 **/
+		'initdialog': undefined,
+		'dialogid'	: undefined,
+		'dialogtopid'	: undefined,
+		
+		/** 可以设置的回调事件 **/
+		'beforeinit'	: undefined,	// 初始化反馈对话框之前
+		'afterinit'		: undefined,	// 初始化反馈对话框完成
+		'beforestart'	: undefined,	// 开始标注之前
+		'afterstart'	: undefined,
+		'beforestop'	: undefined,	// 停止标注之前
+		'afterstop'		: undefined,
+		'beforecancel'	: undefined,	// 取消标注之前
+		'aftercancel'	: undefined,
+		/** 以下回调事件可增加参数e **/
+		'onmouseover'	: undefined,	// 标注时鼠标经过元素
+		'onmouseout'	: undefined,	// 标注时鼠标离开元素
+		'onmousedown'	: undefined,	// 标注时鼠标点击落下
+		
+		/** 以下一般不需要修改 **/
+		'dialogclass'	: 'jquery-feedback-drag',		// dialog元素的class
+		'dialogtopclass': 'jquery-feedback-drag-top',	// dialog元素顶部的class
+		'shadeidprefix'	: 'fb_shade_',			// shade元素的id前缀
+		'closeidprefix'	: 'fb_close_',			// close元素的id前缀
 		'feedbackclass'	: 'jquery-feedback',	// feedback shade的class，如有重名，可用新名称覆盖
 		'closetext'	: '&times;',				// close按钮的文本
 		'closeposition'	: 'right-up',			// close按钮的位置
 		'closeclass': 'jquery-feedback-close',	// feedback close按钮的class
-		'closefontsize'	: 24,			// close按钮的文本自号
-		'closefontweight'	: 900,		// close按钮的font-weight
-		'closewidth': 13,		// 根据closewidth和closeheight设置close按钮的位移（以shade右上角为基准）
+		'closefontsize'	: 24,					// close按钮的文本自号
+		'closefontweight'	: 900,				// close按钮的font-weight
+		'closewidth': 13,						// 根据closewidth和closeheight设置close按钮的位移（以shade右上角为基准）
 		'closeheight'	: 7,
-		
-		'mouseover': function (e) {
-			mouseover(e, $(this));
-		},
-		'mouseout'	: function (e) {
-			mouseout(e, $(this));
-		},
-		'mousedown'	: function (e) {
-			mousedown(e, $(this));
-		}
+		'flagdialog'	: 'jq-flag-dialog',
+		'flagshade'		: 'jq-flag-shade',
+		'flagclose'		: 'jq-flag-close',
+		'flagindex'		: 'jq-flag-index'
 	};
 	$.fn.feedback.target = new Array();
 	$.fn.feedback.shade = new Array();
 	$.fn.feedback.close = new Array();
 	$.fn.feedback.index = 0;
-	$.fn.feedback.SHADE_TEMP = 1;
-	$.fn.feedback.SHADE_CLICK = 2;
+	$.fn.feedback.SHADE_TEMP = "1";
+	$.fn.feedback.SHADE_CLICK = "2";
+	$.fn.feedback.DIALOG_PREVENT = "10";
 	
 	$.fn.feedback.target_temp = undefined;
 	$.fn.feedback.shade_temp = undefined;
 	$.fn.feedback.close_temp = undefined;
 	
+	$.fn.feedback.dialog_button_html = '<div class="jquery-feedback-drag-bottom">\
+		<button class="jquery-feedback-button white submit">提交反馈</button>\
+		<button class="jquery-feedback-button white cancel">取消</button>\
+	</div>';
+	
+	/**
+	 * 返回配置
+	 */
 	$.fn.feedback.getOption = function () {
 		var settings = $(this).data($.fn.feedback.pluginName);
-		if (typeof(settings) === "undefined") {
-			settings = $.fn.feedback.defaults;
-		}
+		settings === undefined && settings = $.fn.feedback.defaults;
 		return settings;
 	};
 	
-	$.fn.feedback.getHtml = function () {
-		var html = "";
-		for (var i in $.fn.feedback.target)
+	/**
+	 * 增加配置
+	 */
+	$.fn.feedback.addUnit = function (unit) {
+		var unit_array = unit.split(",");
+		for (var i = 0, len = unit_array.length; i < len; i++)
 		{
-			if (typeof($.fn.feedback.target[i]) == "undefined")
+			$.fn.feedback.unit.push(unit_array[i]);
+		}
+	};
+	
+	function index_of(val) 
+	{
+        for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
+        {
+            if ($.fn.feedback.unit[i] === val) return i;
+        }
+        return -1;
+    };
+    
+    function remove_unit(val) 
+    {
+        var index = index_of(val);
+        index > -1 && $.fn.feedback.unit.splice(index, 1);
+    };
+    
+	/**
+	 * 删减配置
+	 */
+	$.fn.feedback.removeUnit = function (unit) {
+		var unit_array = unit.split(",");
+		for (var i = 0, len = unit_array.length; i < len; i++)
+		{
+			remove_unit(unit_array[i]);
+		}
+	};
+	
+	/**
+	 * 获得所有target，以jquery数组的形式返回
+	 */
+	$.fn.feedback.getHtmlJQ = function () {
+		var html = new Array();
+		for (var i = 0, len = $.fn.feedback.target.length; i < len; i++)
+		{
+			if ($.fn.feedback.target[i] === undefined)
 			{
 				continue;
 			}
-			html += $.fn.feedback.target[i].html() + "\r\n";
+			html.push($.fn.feedback.target[i]);
 		}
 		
 		return html;
 	};
 	
-	function bind_event(obj, settings)
-	{   		
-		obj.mouseover(obj.data($.fn.feedback.pluginName).mouseover);
-		obj.mouseout(obj.data($.fn.feedback.pluginName).mouseout);
-		obj.mousedown(obj.data($.fn.feedback.pluginName).mousedown);
+	/**
+	 * 获得所有target，以html代码数组的形式返回
+	 */
+	$.fn.feedback.getHtmlArray = function () {
+		var html = $.fn.feedback.getHtmlJQ();
+		return html.map(function (val) {
+			return val.html();
+		});
+	};
+	
+	/**
+	 * trim
+	 */
+	function trim(str)
+	{
+		return str.replace(/(^\s*)|(\s*$)/g, "");
 	}
 	
+	/**
+	 * 绑定事件
+	 */
+	function bind_event(obj, settings)
+	{
+		obj.mouseover(function (e) {
+			mouseover(e, obj, settings);
+			settings.onmouseover === undefined || settings.onmouseover(e);
+		});
+		obj.mouseout(function (e) {
+			mouseout(e, obj, settings);
+			settings.onmouseout === undefined || settings.onmouseout(e);
+		});
+		obj.mousedown(function (e) {
+			mousedown(e, obj, settings);
+			settings.onmousedown === undefined || settings.onmousedown(e);
+		});
+	}
+	
+	/**
+	 * 解除事件绑定
+	 */
+	function unbind_event(obj, settings)
+	{
+		obj.unbind('mouseover');
+		obj.unbind('mouseout');
+		obj.unbind('mousedown');
+	}
+	
+	/**
+	 * 判断一个target是否符合要求
+	 * @param target
+	 * @param settings
+	 * @returns
+	 */
 	function is_valid(target, settings)
 	{
 		//是一个shade元素
-		if (target.attr("shade") != undefined)
+		if (target.attr(settings.flagshade) != undefined)
 		{
-			return target.attr("shade");
+			return target.attr(settings.flagshade);
+		}
+		if (target.attr(settings.flagdialog) != undefined)
+		{
+			return $.fn.feedback.DIALOG_PREVENT;
 		}
 		
 		//不符合要求
 		var flag = false;
-		var tagName = target.get(0).tagName.replace(/(^\s*)|(\s*$)/g, "").toLowerCase();
-		for (var i = 0; i < $.fn.feedback.unit.length; i++)
+		var tagName = trim(target.get(0).tagName).toLowerCase();
+		for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
 		{
-			if ($.fn.feedback.unit[i] == tagName)
+			if ($.fn.feedback.unit[i] === tagName)
 			{
 				flag = true;
 				break;
@@ -142,6 +338,9 @@
 		return 0;
 	}
 	
+	/**
+	 * 生成一个Shade元素
+	 */
 	function getShade(target, settings, shade_id)
 	{
 		var l = target.offset().left;
@@ -150,12 +349,12 @@
 		var shade = top.document.createElement("div");
 		shade.style.width = target.width() + "px";
 		shade.style.height = target.height() + "px";
-		shade.style.backgroundColor = shade_id == $.fn.feedback.SHADE_TEMP ? settings.tempbackground : settings.background;
+		shade.style.backgroundColor = shade_id === $.fn.feedback.SHADE_TEMP ? settings.tempbackground : settings.background;
 		shade.style.position = "absolute";
 		shade.style.left = l + "px";
 		shade.style.top = t + "px";
 		shade.style.zIndex = settings.zIndex;
-		var opacity = shade_id == $.fn.feedback.SHADE_TEMP ? settings.tempopacity : settings.opacity;
+		var opacity = shade_id === $.fn.feedback.SHADE_TEMP ? settings.tempopacity : settings.opacity;
 		
 	    if(top.document.all)
 	    {
@@ -167,24 +366,30 @@
 	    }
 	    
 	    shade = $(shade);
-	    shade.attr("shade", shade_id);
+	    
+	    shade.attr(settings.flagshade, shade_id);
 	    shade.addClass(settings.feedbackclass);
 	    shade.attr("id", settings.shadeidprefix + $.fn.feedback.index);
-	    shade.attr("index", $.fn.feedback.index);
+	    shade.attr(settings.flagindex, $.fn.feedback.index);
+	    settings.tempborder === undefined || shade.css("border", settings.tempborder);
+	    
 	    return shade;
 	}
 	
+	/**
+	 * 生成一个close元素
+	 */
 	function getClose(target, settings, shade_id)
 	{
 		var l = target.offset().left;
 		var t = target.offset().top;
 		
-		if (settings.closeposition == "right-up")
+		if (settings.closeposition === "right-up")
 		{
 			l = l + target.width() - settings.closewidth;
 			t = t - settings.closeheight;
 		}
-		else if (settings.closeposition == "left-up")
+		else if (settings.closeposition === "left-up")
 		{
 			t = t - settings.closeheight;
 		}
@@ -197,34 +402,56 @@
 	    
 		shade = $(shade);
 	    shade.html(settings.closetext);
-	    shade.attr("shade", shade_id);
+	    shade.attr(settings.flagshade, shade_id);
 	    shade.css('font-size', settings.closefontsize);
 	    shade.css('font-weight', settings.closefontweight);
 	    shade.addClass(settings.closeclass);
 	    shade.attr("id", settings.closeidprefix + $.fn.feedback.index);
-	    shade.attr("index", $.fn.feedback.index);
-	    shade.attr("close", shade_id);
+	    shade.attr(settings.flagindex, $.fn.feedback.index);
+	    shade.attr(settings.flagclose, shade_id);
 	    return shade;
 	}
 	
-	function remove_shade(target, settings)
+	function remove_all_tags($this, settings)
 	{
-		var index = target.attr('index');
+		for (var i = 0, len = $.fn.feedback.shade.length; i < len; i++)
+		{
+			if ($.fn.feedback.shade[i] === undefined)
+			{
+				continue;
+			}
+			remove_shade($.fn.feedback.shade[i], settings);
+		}
+		$.fn.feedback.index = 0;
+	}
+	
+	
+	/**
+	 * 删除一个shade元素
+	 */
+	function remove_shade(shade, settings)
+	{
+		var index = shade.attr(settings.flagindex);
 		$("#" + settings.closeidprefix + index).remove();
 		$("#" + settings.shadeidprefix + index).remove();
-		delete($.fn.feedback.target[index]);
-		delete($.fn.feedback.shade[index]);
-		delete($.fn.feedback.close[index]);
+		// set to undefined
+		$.fn.feedback.target.splice(index, 1, undefined);
+		$.fn.feedback.shade.splice(index, 1, undefined);
+		$.fn.feedback.close.splice(index, 1, undefined);
 	}
 	
-	function mouseout(e, obj) {
+	/**
+	 * 鼠标离开一个元素如何处理
+	 */
+	function mouseout(e, obj, settings) {
 		var target = $(e.target);
-		if ($.fn.feedback.target_temp != undefined && target[0] == ($.fn.feedback.target_temp)[0])// || e.target == $.fn.feedback.shade_temp || e.target == $.fn.feedback.close_temp)
+		// 离开target元素，说明此时生成了shade&close元素，覆盖在其上，因此不做进一步处理
+		if ($.fn.feedback.target_temp != undefined && target[0] === ($.fn.feedback.target_temp)[0])
 		{
 			return;
 		}
 		
-		// 移除原有的记录
+		// 移除记录
 		if ($.fn.feedback.target_temp != undefined)
 		{
 			$.fn.feedback.shade_temp.remove();
@@ -232,19 +459,20 @@
 		}
 	}
 	
-	function mouseover(e, obj) {
+	/**
+	 * 鼠标覆盖一个元素如何处理
+	 */
+	function mouseover(e, obj, settings) {
 		var target = $(e.target);
 
-		// target变成了其覆盖元素
+		// 进入shade或者close元素，说明是新生成覆盖在target上导致，不做处理
 		if (($.fn.feedback.shade_temp != undefined && $.fn.feedback.close_temp != undefined)
 				&&
-				(target[0] == ($.fn.feedback.shade_temp)[0] || target[0] == ($.fn.feedback.close_temp)[0]))
+				(target[0] === ($.fn.feedback.shade_temp)[0] || target[0] === ($.fn.feedback.close_temp)[0]))
 		{
 			return;
 		}
 		
-		var settings = obj.data($.fn.feedback.pluginName);
-			
 		// 移除原有的记录
 		if ($.fn.feedback.target_temp != undefined)
 		{
@@ -252,6 +480,7 @@
 			$.fn.feedback.close_temp.remove();
 		}
 		
+		// 判断是否有效
 		var valid = is_valid(target, settings);
 		if (valid < 0)
 		{
@@ -262,34 +491,37 @@
 			return;
 		}
 		
-		//1表示临时
+		// 在target上面生成临时的shade&close，其中close先隐藏掉
 		var shade = getShade(target, settings, $.fn.feedback.SHADE_TEMP);
 		var close = getClose(target, settings, $.fn.feedback.SHADE_TEMP);
 		close.hide();
 		
-		//临时保存的都是dom元素
+		// 保存临时元素
 		$.fn.feedback.target_temp = target;
 		$.fn.feedback.shade_temp = shade;
 		$.fn.feedback.close_temp = close;
 		
-	    $("body").append(shade);
-	    $("body").append(close);
+		$.fn.feedback.$this.append(shade);
+		$.fn.feedback.$this.append(close);
 	}
 	
+	/**
+	 * 指定一个新的target，判断是否之前有某些元素属于这个新的target
+	 */
 	function find_child(parentObj)
 	{ 
 		var obj;
 		var children = new Array();
-		for (var i in $.fn.feedback.target)
+		for (var i = 0, len = $.fn.feedback.target.length; i < len; i++)
 		{
-			if ($.fn.feedback.target[i] == undefined)
+			if ($.fn.feedback.target[i] === undefined)
 			{
 				continue;
 			}
 			obj = ($.fn.feedback.target[i])[0];
 			while (obj != undefined && obj != null && obj.tagName.toLowerCase() != 'body')
 			{ 
-				if (obj == parentObj)
+				if (obj === parentObj)
 				{
 					children.push($.fn.feedback.shade[i]);
 					break;
@@ -300,35 +532,42 @@
 		return children;
 	} 
 	
-	function mousedown(e, obj) {
+	/**
+	 * 鼠标点击落下
+	 */
+	function mousedown(e, obj, settings) {
 		var target = $(e.target);
-		
-		if (target.attr("shade") != $.fn.feedback.SHADE_TEMP)
+		// 只有点到了临时shade&close上才进行处理
+		if (target.attr(settings.flagshade) != $.fn.feedback.SHADE_TEMP)
 		{
 			return;
 		}
 		
-		var settings = obj.data($.fn.feedback.pluginName);
-		
-		if (target.attr("close") == $.fn.feedback.SHADE_CLICK)
+		// 点到close按钮，则移除它
+		if (target.attr(settings.flagclose) === $.fn.feedback.SHADE_CLICK)
 		{
 			remove_shade(target, settings);
 			return;
 		}
 		
+		// 将临时的shade&close转换为非临时状态
 		var shade = $.fn.feedback.shade_temp;
 		var close = $.fn.feedback.close_temp;
 		
 		shade.css("background-color", settings.background);
+		shade.css("border", "");
+		settings.border === undefined || shade.css("border", settings.border);
+		
 		close.css("opacity", settings.opacity);
-		shade.attr("shade", $.fn.feedback.SHADE_CLICK);
-		close.attr("close", $.fn.feedback.SHADE_CLICK);
+		shade.attr(settings.flagshade, $.fn.feedback.SHADE_CLICK);
+		close.attr(settings.flagclose, $.fn.feedback.SHADE_CLICK);
 		close.show();
 		
+		// 如果不允许有sub存在，那么将新target下面所有已经被选中的孩子都变成不选中状态
 		if (!settings.allowsub)
 		{
 			var shade_children = find_child(($.fn.feedback.target_temp)[0]);
-			for (var i in shade_children)
+			for (var i = 0, len = shade_children.length; i < len; i++)
 			{
 				remove_shade(shade_children[i], settings);
 			}
@@ -340,6 +579,44 @@
 		$.fn.feedback.close.push(close);
 		$.fn.feedback.close_temp = undefined;
 		$.fn.feedback.index++;
+	}
+	
+	// jQuery方法定义的拖动
+	function drag_jq(dragControl, dragContent)
+	{
+		var _drag = false, _x, _y, cw, ch, sw, sh;
+		var dragContent = typeof dragContent == "undefined" ? dragControl : dragContent;
+		
+		$(dragControl).mousedown(function(e){
+			_drag = true;
+			
+			_x = e.pageX - parseInt($(dragContent).css("left"));
+			_y = e.pageY - parseInt($(dragContent).css("top"));
+			cw = $(window).width();
+			ch = $(window).height();
+			sw = parseInt($(dragContent).outerWidth());
+			sh = parseInt($(dragContent).outerHeight());
+			
+			window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty(); //禁止拖放对象文本被选择的方法
+			document.body.setCapture && $(dragContent)[0].setCapture(); // IE下鼠标超出视口仍可被监听
+			
+			$(document).mousemove(function(e){
+				if (_drag) {
+					var x = e.pageX - _x;
+					var y = e.pageY - _y;
+					x = x < 0 ? x = 0 : x < (cw-sw) ? x :(cw-sw);
+					y = y < 0 ? y = 0 : y < (ch-sh) ? y :(ch-sh);
+					
+					$(dragContent).css({
+						top: y,
+						left: x
+					});
+				}
+			}).mouseup(function(){
+				_drag = false;
+				document.body.releaseCapture && $(dragContent)[0].releaseCapture();
+			});
+		});
 	}
 })(jQuery);  
     
