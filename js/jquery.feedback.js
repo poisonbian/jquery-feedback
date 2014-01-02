@@ -1,5 +1,16 @@
 (function($) {	
 	$.fn.feedback = function(options) {
+//		console.log(options);
+//		if (typeof (options) == "string")
+//		{
+//			var $this = $(this);
+//			var _arguments = Array.prototype.slice.call( arguments );
+//			console.log(_arguments.slice( 1, _arguments.length ) );
+//			$.fn.feedback.apply(
+//					options,
+//					_arguments.slice( 1, _arguments.length ) );
+////			return;
+//		}
 		var settings = $(this).data($.fn.feedback.pluginName);
 		//如果获取settings失败，则根据options和default创建它
 		if (typeof(settings) === "undefined") {
@@ -16,10 +27,6 @@
 		}
 	    
 	    bind_event($(this), settings);
-	    
-	    return this.each(function ( ) {
-	    	$this = $( this );
-	    });
 	}; 
 	
 	$.fn.feedback.pluginName = "feedback";
@@ -124,7 +131,6 @@
 		var width = target.width();
 		var height = target.height();
 		var length = target.text().length;
-		console.log(length);
 
 		if (width < settings.minwidth || width > settings.maxwidth
 				|| height < settings.minheight || height > settings.maxheight
