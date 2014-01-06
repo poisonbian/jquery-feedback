@@ -14,9 +14,9 @@
 		// 初始化反馈对话框
 		$this.feedback.init = function () {
 			settings.beforeinit === undefined || settings.beforeinit();
-			if (settings.dialogid != undefined && settings.dialogtopid != undefined)
+			if (settings.dialogid != undefined)
 			{
-				drag_jq(settings.dialogtopid, settings.dialogid);
+				drag_jq(settings, settings.dialogid);
 				$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
 //				$(settings.dialogid).find("*").attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
 //				$(settings.dialogid).css("zIndex", settings.zIndex + 2);
@@ -69,10 +69,6 @@
 		{
 			$(settings.dialogid).addClass(settings.dialogclass);
 			$(settings.dialogid).hide();
-		}
-		if (settings.dialogtopid != undefined)
-		{
-			$(settings.dialogtopid).addClass(settings.dialogtopclass);
 		}
 		
 		if (settings.initdialog != undefined)
@@ -132,7 +128,6 @@
 		/** 和弹出dialog相关的配置 **/
 		'initdialog': undefined,
 		'dialogid'	: undefined,
-		'dialogtopid'	: undefined,
 		
 		/** 可以设置的回调事件 **/
 		'beforeinit'	: undefined,	// 初始化反馈对话框之前
@@ -144,9 +139,12 @@
 		'beforecancel'	: undefined,	// 取消标注之前
 		'aftercancel'	: undefined,
 		/** 以下回调事件可增加参数e **/
-		'onmouseover'	: undefined,	// 标注时鼠标经过元素
-		'onmouseout'	: undefined,	// 标注时鼠标离开元素
-		'onmousedown'	: undefined,	// 标注时鼠标点击落下
+		'beforemouseover'	: undefined,	// 标注时鼠标经过元素
+		'aftermouseover'	: undefined,	
+		'beforemouseout'	: undefined,	// 标注时鼠标离开元素
+		'aftermouseout'		: undefined,	
+		'beforemousedown'	: undefined,	// 标注时鼠标点击落下
+		'aftermousedown'	: undefined,	
 		
 		/** 以下一般不需要修改 **/
 		'dialogclass'	: 'jquery-feedback-drag',		// dialog元素的class
@@ -258,8 +256,8 @@
 	
 	/**
 	 * {
-	 * 		'html'	: html
-	 * 		'key'	: jquery_function_name
+	 * 		'html'	: html()
+	 * 		'key'	: jquery_function_name()
 	 * }
 	 */
 	$.fn.feedback.getResult = function (options) {
@@ -272,7 +270,8 @@
 			for (option_name in options)
 			{
 				option_func = options[option_name];
-				option_object[option_name] = eval("html[i]." + option_func + "()");
+				option_object[option_name] = eval("html[i]." + option_func);
+				console.log(option_object[option_name]);
 			}
 			result_array.push(option_object);
 		}
@@ -300,16 +299,19 @@
 	function bind_event(obj, settings)
 	{
 		obj.mouseover(function (e) {
+			settings.beforemouseover === undefined || settings.beforemouseover(e);
 			mouseover(e, obj, settings);
-			settings.onmouseover === undefined || settings.onmouseover(e);
+			settings.aftermouseover === undefined || settings.aftermouseover(e);
 		});
 		obj.mouseout(function (e) {
+			settings.beforemouseout === undefined || settings.beforemouseout(e);
 			mouseout(e, obj, settings);
-			settings.onmouseout === undefined || settings.onmouseout(e);
+			settings.aftermouseout === undefined || settings.aftermouseout(e);
 		});
 		obj.mousedown(function (e) {
+			settings.beforemousedown === undefined || settings.beforemousedown(e);
 			mousedown(e, obj, settings);
-			settings.onmousedown === undefined || settings.onmousedown(e);
+			settings.aftermousedown === undefined || settings.aftermousedown(e);
 		});
 	}
 	
@@ -619,12 +621,12 @@
 	}
 	
 	// jQuery方法定义的拖动
-	function drag_jq(dragControl, dragContent)
+	function drag_jq(settings, dragContent)
 	{
 		var _drag = false, _x, _y, cw, ch, sw, sh;
 		var dragContent = typeof dragContent == "undefined" ? dragControl : dragContent;
 		
-		$(dragControl).mousedown(function(e){
+		$(dragContent).find("." + settings.dialogtopclass).mousedown(function(e){
 			_drag = true;
 			
 			_x = e.pageX - parseInt($(dragContent).css("left"));

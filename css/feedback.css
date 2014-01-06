@@ -6,30 +6,39 @@
 	position: fixed;
 	left:1000px;
 	top:200px;
-	width:200px;
-	height:200px;
+	width:300px;
+	height:220px;
+	font-size:14px;
 	background:#FFFFFF;
 	border:1px solid #AAAAAA;
 	line-height:30px;
-	font-size:20px;
-	text-align:center;
+	text-align:left;	
 	cursor:default;	
 	overflow:hidden;
 	zoom:100%;
 	_position:absolute;
 	_top: expression(documentElement.scrollTop + this.offsetHeight + 18);
 }
+/** 可用于拖拽的头部 **/
 .jquery-feedback-drag-top {
 	height:30px;
 	background:#999999;
 	line-height:30px;
-	cursor:move;
+	cursor:move;	
+	font-size:18px;	
+	text-align:center;	
 	color:#FFFFFF;
 }
+/** 自定义表单 **/
+.jquery-feedback-drag-content {
+	margin:5px;
+}
+/** 生成的提交取消按钮 **/
 .jquery-feedback-drag-bottom {
 	position:absolute;
 	bottom:0px;
 	width:100%;
+	text-align:center;
 }
 
 /** white, gray, blue 三种样式**/

@@ -14,7 +14,7 @@
 <div class="container">
 	<button id="feedback">反馈</button>
 	<div>haha2</div>
-	<div>haha3</div>
+	<div id="haha3">haha3</div>
 	<div>haha4</div>
 	<div>haha5</div>
 	<div>haha6</div>
@@ -26,7 +26,19 @@
 
 
 <div id="container_drag">
-	<div id="container_drag_top">反馈</div>
+	<div class="jquery-feedback-drag-top">反馈</div>
+	<div class="jquery-feedback-drag-content">
+		<form id="form_feedback">
+			错误类型: 
+			<select id="feedback_bug_type" style="width: 227px;">
+				<option value="1">样式错误</option>
+				<option value="2">内容错误</option>
+			</select>
+			<br />
+			问题描述:<br />
+			<textarea style="width:98%;" rows="4"></textarea>
+		</form>
+	</div>
 </div>
 <!-- container end -->
 
