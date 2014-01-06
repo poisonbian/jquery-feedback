@@ -18,8 +18,9 @@
 			{
 				drag_jq(settings.dialogtopid, settings.dialogid);
 				$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
-				$(settings.dialogid).find("*").attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
-				$(settings.dialogid).find(".cancel").live('click', function () {
+//				$(settings.dialogid).find("*").attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
+//				$(settings.dialogid).css("zIndex", settings.zIndex + 2);
+				$(settings.dialogid).find(".cancel").on('click', function () {
 					settings.beforecancel === undefined || settings.beforecancel();
 					click_cancel($this, settings);
 					settings.aftercancel === undefined || settings.aftercancel();
@@ -256,6 +257,36 @@
 	};
 	
 	/**
+	 * {
+	 * 		'html'	: html
+	 * 		'key'	: jquery_function_name
+	 * }
+	 */
+	$.fn.feedback.getResult = function (options) {
+		var html = $.fn.feedback.getHtmlJQ();
+		var i, func, option_name, option_func, option_object;
+		var result_array = new Array();
+		for (i = 0, len = html.length; i < len; i++)
+		{
+			option_object = {};
+			for (option_name in options)
+			{
+				option_func = options[option_name];
+				option_object[option_name] = eval("html[i]." + option_func + "()");
+			}
+			result_array.push(option_object);
+		}
+		return result_array;
+	}
+	
+	/**
+	 * 将json array转化为字符串
+	 */
+	$.fn.feedback.getResultString = function (options) {
+		return JSON.stringify($.fn.feedback.getResult(options));
+	};
+	
+	/**
 	 * trim
 	 */
 	function trim(str)
@@ -306,6 +337,12 @@
 			return target.attr(settings.flagshade);
 		}
 		if (target.attr(settings.flagdialog) != undefined)
+		{
+			return $.fn.feedback.DIALOG_PREVENT;
+		}
+		
+		//是dialog或其子元素
+		if (target.attr("id") === settings.dialogid || target.parents(settings.dialogid).length > 0)
 		{
 			return $.fn.feedback.DIALOG_PREVENT;
 		}
