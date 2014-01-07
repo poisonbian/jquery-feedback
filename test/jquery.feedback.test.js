@@ -25,21 +25,10 @@ $(document).ready(function() {
 		'dialogid':'#container_drag',
 		'closeposition':'left-up', 
 		'allowsub':false, 
-		'mintext':1,
+		'mintext':0,
 		'aftermousedown': function (e) {
 		},
-		'submiturl'	: 'http://cq01-testing-ps11101.vm.baidu.com:8750/feedback.php'
+		'submiturl'	: 'http://localhost/jquery-feedback/php/feedback.php'
 //		'onsubmit': submit_feedback
 	});
-	
-//	var fb_result = fb.feedback.getResultString(
-//			{
-//				'id': 'attr("id")',
-//				'html': 'html()'
-//			}
-//	);
-	
-//	fb.feedback.init();
-//	fb.feedback.start();
-//	alert(fb.feedback.getHtml());
 });

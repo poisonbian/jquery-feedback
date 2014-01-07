@@ -24,6 +24,7 @@
 		{
 			drag_jq(settings, settings.dialogid);
 			$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
+			$(settings.dialogid).css("zIndex", settings.zIndex + 2);
 			$(settings.dialogid).find(".submit").on('click', function () {
 				if (settings.onsubmit === undefined)
 				{
@@ -206,7 +207,7 @@
 	$.fn.feedback.getHtmlArray = function () {
 		var html = $.fn.feedback.getHtmlJQ();
 		return html.map(function (val) {
-			return val.html();
+			return val.prop("outerHTML");
 		});
 	};
 	
@@ -260,14 +261,14 @@
 		var settings = $.fn.feedback.getOption();
 		var fb_result = $.fn.feedback.getResultString({
 			'id'	: 'attr("id")',
-			'html'	: 'html()'
+			'html'	: 'prop("outerHTML")'
 		});
 		var data = {
 			'url'		: document.URL,
 			'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
 			'feedback'	: fb_result,
 			'cookie'	: document.cookie,
-			'html'		: $("html").html()
+//			'html'		: $("html").prop("outerHTML")
 		};
 		
 		if (settings.submiturl != undefined)
@@ -280,7 +281,6 @@
 		        async : true,
 		        success : function(data) {
 		        	alert("反馈成功");
-		        	console.log(data);
 		    		$.fn.feedback.closeDialog();
 		        },
 		        error : function(data) {
