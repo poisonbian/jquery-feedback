@@ -5,9 +5,9 @@
 .jquery-feedback-drag {	
 	position: fixed;
 	left:900px;
-	top:200px;
+	top:150px;
 	width:300px;
-	height:220px;
+	height:300px;
 	font-size:14px;
 	background:#FFFFFF;
 	border:1px solid #AAAAAA;

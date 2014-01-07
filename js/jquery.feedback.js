@@ -297,10 +297,6 @@
 		return JSON.stringify($.fn.feedback.getResult(options));
 	};
 	
-
-
-	
-	
 	/**
 	 * 初始化dialog的操作
 	 * @param $this
