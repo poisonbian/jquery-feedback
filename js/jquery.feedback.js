@@ -11,100 +11,65 @@
 			$(this).data($.fn.feedback.pluginName, settings);
 		}
 		
-		// 初始化反馈对话框
-		$this.feedback.init = function () {
-			settings.beforeinit === undefined || settings.beforeinit();
-			if (settings.dialogid != undefined)
-			{
-				drag_jq(settings, settings.dialogid);
-				$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
-//				$(settings.dialogid).find("*").attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
-//				$(settings.dialogid).css("zIndex", settings.zIndex + 2);
-				$(settings.dialogid).find(".cancel").on('click', function () {
-					settings.beforecancel === undefined || settings.beforecancel();
-					click_cancel($this, settings);
-					settings.aftercancel === undefined || settings.aftercancel();
-				});
-				
-				$(settings.dialogid).show();
-			}
-			settings.afterinit === undefined || settings.afterinit();
-		};
-		
-		// 开始进行反馈标注
-		$this.feedback.start = function () {
-			settings.beforestart === undefined || settings.beforestart();
-			var unit = settings.unit;
-			$.fn.feedback.unit = unit.split(",");
-			for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
-			{
-				$.fn.feedback.unit[i] = trim($.fn.feedback.unit[i]).toLowerCase();
-			}
-		    
-		    bind_event($this, settings);
-		    settings.afterstart === undefined || settings.afterstart();
-		};
-		
-		// 结束反馈标注
-		$this.feedback.stop = function () {
-			settings.beforestop === undefined || settings.beforestop();
-			remove_all_tags($this, settings);
-		    unbind_event($this, settings);
-		    settings.afterstop === undefined || settings.afterstop();
-		};
-		
 		init_dialog($this, settings);
 		return $this;
 	}; 
-	
-	/**
-	 * 初始化dialog的操作
-	 * @param $this
-	 * @param settings
-	 * @returns
-	 */
-	function init_dialog($this, settings)
-	{
+
+	// 初始化反馈对话框
+	$.fn.feedback.init = function () {
+		var settings = $.fn.feedback.getOption();
+		
+		settings.beforeinit === undefined || settings.beforeinit();
 		if (settings.dialogid != undefined)
 		{
-			$(settings.dialogid).addClass(settings.dialogclass);
-			$(settings.dialogid).hide();
-		}
-		
-		if (settings.initdialog != undefined)
-		{
-			$(settings.initdialog).click(function (e) {
-				e.preventDefault();
-				$.fn.feedback.init();
-				$this.feedback.start();
+			drag_jq(settings, settings.dialogid);
+			$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
+			$(settings.dialogid).find(".submit").on('click', function () {
+				if (settings.onsubmit === undefined)
+				{
+					default_onsubmit();
+				}
+				else
+				{
+					settings.onsubmit();
+				}
+			});
+			
+			$(settings.dialogid).find(".cancel").on('click', function () {
+				settings.beforecancel === undefined || settings.beforecancel();
+				$.fn.feedback.closeDialog($.fn.feedback.$this, settings);
+				settings.aftercancel === undefined || settings.aftercancel();
 			});
 		}
+		settings.afterinit === undefined || settings.afterinit();
+		$.fn.feedback.init_flag = true;
+	};
+	
+	// 开始进行反馈标注
+	$.fn.feedback.start = function () {
+		var settings = $.fn.feedback.getOption();
 
-		init_dialog_button($this, settings);
-	}
+		settings.beforestart === undefined || settings.beforestart();
+		var unit = settings.unit;
+		$.fn.feedback.unit = unit.split(",");
+		for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
+		{
+			$.fn.feedback.unit[i] = trim($.fn.feedback.unit[i]).toLowerCase();
+		}
+	    
+	    bind_event($.fn.feedback.$this, settings);
+	    settings.afterstart === undefined || settings.afterstart();
+	};
 	
-	/**
-	 * 点击取消按钮
-	 * @param $this
-	 * @param settings
-	 * @returns
-	 */
-	function click_cancel($this, settings)
-	{
-		$(settings.dialogid).hide();
-		$this.feedback.stop();
-	}
-	
-	/**
-	 * 初始化反馈对话框中的按钮
-	 * @param $this
-	 * @param settings
-	 * @returns
-	 */
-	function init_dialog_button($this, settings)
-	{
-		$(settings.dialogid).append($.fn.feedback.dialog_button_html);
-	}
+	// 结束反馈标注
+	$.fn.feedback.stop = function () {
+		var settings = $.fn.feedback.getOption();
+		
+		settings.beforestop === undefined || settings.beforestop();
+		remove_all_tags($.fn.feedback.$this, settings);
+	    unbind_event($.fn.feedback.$this, settings);
+	    settings.afterstop === undefined || settings.afterstop();
+	};
 	
 	$.fn.feedback.pluginName = "feedback";
 	$.fn.feedback.defaults = {
@@ -138,6 +103,8 @@
 		'afterstop'		: undefined,
 		'beforecancel'	: undefined,	// 取消标注之前
 		'aftercancel'	: undefined,
+		'onsubmit'		: undefined,	// 点击提交按钮的时候触发
+		
 		/** 以下回调事件可增加参数e **/
 		'beforemouseover'	: undefined,	// 标注时鼠标经过元素
 		'aftermouseover'	: undefined,	
@@ -175,6 +142,7 @@
 	$.fn.feedback.target_temp = undefined;
 	$.fn.feedback.shade_temp = undefined;
 	$.fn.feedback.close_temp = undefined;
+	$.fn.feedback.init_flag = false;
 	
 	$.fn.feedback.dialog_button_html = '<div class="jquery-feedback-drag-bottom">\
 		<button class="jquery-feedback-button white submit">提交反馈</button>\
@@ -185,8 +153,11 @@
 	 * 返回配置
 	 */
 	$.fn.feedback.getOption = function () {
-		var settings = $(this).data($.fn.feedback.pluginName);
-		settings === undefined && settings = $.fn.feedback.defaults;
+		var settings = $.fn.feedback.$this.data($.fn.feedback.pluginName);	
+		if (settings === undefined)
+		{
+			settings = $.fn.feedback.defaults;
+		}
 		return settings;
 	};
 	
@@ -201,21 +172,6 @@
 		}
 	};
 	
-	function index_of(val) 
-	{
-        for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
-        {
-            if ($.fn.feedback.unit[i] === val) return i;
-        }
-        return -1;
-    };
-    
-    function remove_unit(val) 
-    {
-        var index = index_of(val);
-        index > -1 && $.fn.feedback.unit.splice(index, 1);
-    };
-    
 	/**
 	 * 删减配置
 	 */
@@ -271,11 +227,55 @@
 			{
 				option_func = options[option_name];
 				option_object[option_name] = eval("html[i]." + option_func);
-				console.log(option_object[option_name]);
+//				console.log(option_object[option_name]);
 			}
 			result_array.push(option_object);
 		}
 		return result_array;
+	}
+	
+	/**
+	 * 关闭feedback窗口
+	 */
+	$.fn.feedback.closeDialog = function () {
+		var settings = $.fn.feedback.getOption();
+		$(settings.dialogid).hide();
+		$.fn.feedback.stop();
+	}
+	
+	/**
+	 * 默认的提交方式，如果自定义onsubmit的话，请参考如下方式：
+	 * var fb;
+	 * function submit() {
+	 * 		// 使用变量，而非$.fn
+	 * 		var settings = fb.feedback.getOption();
+	 * 		...
+	 * 		fb.feedback.closeDialog();
+	 * }
+	 * fb = $("body").feedback({
+	 * 		'onsubmit': submit();
+	 * });
+	 */
+	function default_onsubmit() {
+		var settings = $.fn.feedback.getOption();
+		var fb_result = $.fn.feedback.getResultString({
+			'id'	: 'attr("id")',
+			'html'	: 'html()'
+		});
+		var data = {
+			'url'		: document.URL,
+			'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
+			'feedback'	: fb_result,
+			'cookie'	: document.cookie,
+			'html'		: $("html").html()
+		};
+		
+		if (settings.submiturl != undefined)
+		{
+			console.log(data);
+			alert("反馈成功");	
+		}	
+		$.fn.feedback.closeDialog();
 	}
 	
 	/**
@@ -284,6 +284,68 @@
 	$.fn.feedback.getResultString = function (options) {
 		return JSON.stringify($.fn.feedback.getResult(options));
 	};
+	
+
+
+	
+	
+	/**
+	 * 初始化dialog的操作
+	 * @param $this
+	 * @param settings
+	 * @returns
+	 */
+	function init_dialog($this, settings)
+	{
+		if (settings.dialogid != undefined)
+		{
+			$(settings.dialogid).addClass(settings.dialogclass);
+			$(settings.dialogid).hide();
+		}
+		
+		if (settings.initdialog != undefined)
+		{
+			$(settings.initdialog).click(function (e) {
+				e.preventDefault();
+				if (! $this.feedback.init_flag)
+				{
+					$this.feedback.init();
+				}
+				
+				$(settings.dialogid).show();
+				$this.feedback.start();
+			});
+		}
+
+		init_dialog_button($this, settings);
+	}
+	
+	/**
+	 * 初始化反馈对话框中的按钮
+	 * @param $this
+	 * @param settings
+	 * @returns
+	 */
+	function init_dialog_button($this, settings)
+	{
+		$(settings.dialogid).append($.fn.feedback.dialog_button_html);
+	}
+	
+	function index_of(val) 
+	{
+        for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
+        {
+            if ($.fn.feedback.unit[i] === val) return i;
+        }
+        return -1;
+    };
+    
+    function remove_unit(val) 
+    {
+        var index = index_of(val);
+        index > -1 && $.fn.feedback.unit.splice(index, 1);
+    };
+    
 	
 	/**
 	 * trim
