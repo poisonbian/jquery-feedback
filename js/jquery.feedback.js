@@ -272,10 +272,22 @@
 		
 		if (settings.submiturl != undefined)
 		{
-			console.log(data);
-			alert("反馈成功");	
-		}	
-		$.fn.feedback.closeDialog();
+			$.ajax({  
+		        type : 'POST',  
+		        url : settings.submiturl,
+		        dataType : 'json',  
+		        data : data,
+		        async : true,
+		        success : function(data) {
+		        	alert("反馈成功");
+		        	console.log(data);
+		    		$.fn.feedback.closeDialog();
+		        },
+		        error : function(data) {
+		        	alert("反馈接口暂时无法服务");
+		        }
+			});
+		}
 	}
 	
 	/**

@@ -28,7 +28,7 @@ $(document).ready(function() {
 		'mintext':1,
 		'aftermousedown': function (e) {
 		},
-		'submiturl'	: 'http://localhost'
+		'submiturl'	: 'http://cq01-testing-ps11101.vm.baidu.com:8750/feedback.php'
 //		'onsubmit': submit_feedback
 	});
 	
