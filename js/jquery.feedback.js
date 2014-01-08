@@ -245,6 +245,28 @@
 	}
 	
 	/**
+	 * 获得浏览器基础信息
+	 */
+	$.fn.feedback.browserInfo = function () {
+		var x = navigator;
+		var result = {};
+		result["appCodeName"] = x.appCodeName;
+		result["appMinorVersion"] = x.appMinorVersion;
+		result["appName"] = x.appName;
+		result["appVersion"] = x.appVersion;
+		result["cookieEnabled"] = x.cookieEnabled;
+		result["browserLanguage"] = x.browserLanguage;
+		result["cpuClass"] = x.cpuClass;
+		result["onLine"] = x.onLine;
+		result["platform"] = x.platform;
+		result["userAgent"] = x.userAgent;
+		result["systemLanguage"] = x.systemLanguage;
+		result["userLanguage"] = x.userLanguage;
+		
+		return result;
+	}
+	
+	/**
 	 * 默认的提交方式，如果自定义onsubmit的话，请参考如下方式：
 	 * var fb;
 	 * function submit() {
@@ -263,12 +285,15 @@
 			'id'	: 'attr("id")',
 			'html'	: 'prop("outerHTML")'
 		});
+		var browswer_info = $.fn.feedback.browserInfo();
 		var data = {
 			'url'		: document.URL,
 			'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
 			'feedback'	: fb_result,
+			'browser'	: JSON.stringify(browswer_info),
+			'referer'	: document.referrer,
 			'cookie'	: document.cookie,
-//			'html'		: $("html").prop("outerHTML")
+			'html'		: $("html").prop("outerHTML")
 		};
 		
 		if (settings.submiturl != undefined)

@@ -1,22 +1,62 @@
 var fb;
-function submit_feedback()
+function check_feedback()
 {
+	if ($("#feedback_bug_type").val() == "")
+	{
+		return false;
+	}
+	if ($("#feedback_contact").val() == "")
+	{
+		return false;
+	}
+	if ($("#feedback_description").val() == "")
+	{
+		return false;
+	}
+	return true;
+}
+
+function submit_feedback() {
+	if (!check_feedback())
+	{
+		alert("请填写反馈表单");
+		return;
+	}
+	var settings = fb.feedback.getOption();
 	var fb_result = fb.feedback.getResultString({
-		'id': 'attr("id")',
-		'html': 'html()'
+		'id'	: 'attr("id")',
+		'html'	: 'prop("outerHTML")'
 	});
+	var browswer_info = fb.feedback.browserInfo();
 	var data = {
-		'form'	: $("#form_feedback").serialize(),
-		'fb'	: fb_result,
-		'cookie': document.cookie,
-		'other'	: "hahaha"
+		'url'		: document.URL,
+		'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
+		'feedback'	: fb_result,
+		'browser'	: JSON.stringify(browswer_info),
+		'referer'	: document.referrer,
+		'cookie'	: document.cookie,
+		'html'		: $("html").prop("outerHTML"),
+		'receiver'	: 'bian_wei@baidu.com',
+		'cc'		: ''
 	};
 	
-	console.log(data);
-	
-	alert("反馈成功");
-	
-	fb.feedback.closeDialog();
+	if (settings.submiturl != undefined)
+	{
+		$.ajax({  
+	        type : 'POST',  
+	        url : settings.submiturl,
+	        dataType : 'json',  
+	        data : data,
+	        async : true,
+	        success : function(data) {
+	        	alert("反馈成功");
+	    		fb.feedback.closeDialog();
+	        },
+	        error : function(data) {
+	        	alert("反馈接口暂时无法服务");
+	        }
+		});
+	}
 }
 
 $(document).ready(function() {
@@ -28,7 +68,7 @@ $(document).ready(function() {
 		'mintext':0,
 		'aftermousedown': function (e) {
 		},
-		'submiturl'	: 'http://localhost/jquery-feedback/php/feedback.php'
-//		'onsubmit': submit_feedback
+		'submiturl'	: 'http://localhost/jquery-feedback/php/dummy.php',
+		'onsubmit': submit_feedback
 	});
 });
