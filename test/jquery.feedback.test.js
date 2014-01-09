@@ -1,4 +1,5 @@
 var fb;
+
 function check_feedback()
 {
 	if ($("#feedback_bug_type").val() == "")

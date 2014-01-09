@@ -96,6 +96,8 @@
 		'dialogid'	: undefined,
 		
 		/** 可以设置的回调事件 **/
+		'targetvalid'	: undefined,	// 判断元素是否可选
+		
 		'beforeinit'	: undefined,	// 初始化反馈对话框之前
 		'afterinit'		: undefined,	// 初始化反馈对话框完成
 		'beforestart'	: undefined,	// 开始标注之前
@@ -315,6 +317,69 @@
 		}
 	}
 	
+
+	/**
+	 * 判断一个target是否符合要求
+	 * @param target
+	 * @param settings
+	 * @returns
+	 */
+	function is_valid (target, settings) {
+		//是一个shade元素
+		if (target.attr(settings.flagshade) != undefined)
+		{
+			return target.attr(settings.flagshade);
+		}		
+		//是dialog或其子元素
+		if (target.attr("id") === settings.dialogid || target.parents(settings.dialogid).length > 0)
+		{
+			return $.fn.feedback.DIALOG_PREVENT;
+		}
+		
+		if (settings.targetvalid === undefined)
+		{
+			return default_valid(target, settings);
+		}
+		else
+		{
+			return settings.targetvalid(target);
+		}
+	}
+	
+	/**
+	 * 默认的判断target方法
+	 */
+	function default_valid (target, settings)
+	{
+		//不符合要求
+		var flag = false;
+		var tagName = trim(target.get(0).tagName).toLowerCase();
+		for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
+		{
+			if ($.fn.feedback.unit[i] === tagName)
+			{
+				flag = true;
+				break;
+			}
+		}
+		if (!flag) return -1;
+		
+		//不符合要求
+		var width = target.width();
+		var height = target.height();
+		var length = target.text().length;
+
+		if (width < settings.minwidth || width > settings.maxwidth
+				|| height < settings.minheight || height > settings.maxheight
+				|| length < settings.mintext || length > settings.maxtext)
+		{
+			return -1;
+		}
+		//ok
+		return 0;
+	}
+	
+	
 	/**
 	 * 将json array转化为字符串
 	 */
@@ -418,58 +483,6 @@
 		obj.unbind('mouseover');
 		obj.unbind('mouseout');
 		obj.unbind('mousedown');
-	}
-	
-	/**
-	 * 判断一个target是否符合要求
-	 * @param target
-	 * @param settings
-	 * @returns
-	 */
-	function is_valid(target, settings)
-	{
-		//是一个shade元素
-		if (target.attr(settings.flagshade) != undefined)
-		{
-			return target.attr(settings.flagshade);
-		}
-		if (target.attr(settings.flagdialog) != undefined)
-		{
-			return $.fn.feedback.DIALOG_PREVENT;
-		}
-		
-		//是dialog或其子元素
-		if (target.attr("id") === settings.dialogid || target.parents(settings.dialogid).length > 0)
-		{
-			return $.fn.feedback.DIALOG_PREVENT;
-		}
-		
-		//不符合要求
-		var flag = false;
-		var tagName = trim(target.get(0).tagName).toLowerCase();
-		for (var i = 0, len = $.fn.feedback.unit.length; i < len; i++)
-		{
-			if ($.fn.feedback.unit[i] === tagName)
-			{
-				flag = true;
-				break;
-			}
-		}
-		if (!flag) return -1;
-		
-		//不符合要求
-		var width = target.width();
-		var height = target.height();
-		var length = target.text().length;
-
-		if (width < settings.minwidth || width > settings.maxwidth
-				|| height < settings.minheight || height > settings.maxheight
-				|| length < settings.mintext || length > settings.maxtext)
-		{
-			return -1;
-		}
-		//ok
-		return 0;
 	}
 	
 	/**
