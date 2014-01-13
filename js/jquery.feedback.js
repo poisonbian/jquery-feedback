@@ -90,6 +90,7 @@
 		'mintext'	: 0,		// 可点选元素的最少字数
 		'maxtext'	: 2000000,	//可点选元素的最大字数
 		'allowsub'	: true,		// 选中父元素之后，是否还保留子元素
+		'host'		: undefined,	// 主机前缀，用于替换资源路径，获得absHtml时必须指定
 		
 		/** 和弹出dialog相关的配置 **/
 		'initdialog': undefined,
@@ -151,6 +152,12 @@
 		<button class="jquery-feedback-button white submit">提交反馈</button>\
 		<button class="jquery-feedback-button white cancel">取消</button>\
 	</div>';
+	//$.fn.feedback.abs_html_template = ["src=['\"](^(?!http)[^'\"]*)['\"]"];
+	$.fn.feedback.abs_html_template = [
+        "src=(['\"])((?!http://)[^'\"].*)(['\"])",
+        "href=(['\"])((?!http://)[^'\"].*)(['\"])",
+        "url=([\(])((?!http://)[^'\"].*)([\)])"
+    ];
 	
 	/**
 	 * 返回配置
@@ -269,6 +276,27 @@
 	}
 	
 	/**
+	 * 将HTML中的资源引用变成绝对地址, 此时必须设置settings.host
+	 */
+	$.fn.feedback.absHtml = function (html, host) {
+		var settings = $.fn.feedback.getOption();
+		host = host || settings.host;
+		if (host === undefined)
+		{
+			return html;
+		}
+		var result = html;
+		var reg;
+		for (var i = 0, len = $.fn.feedback.abs_html_template.length; i < len; i++)
+		{
+			reg = new RegExp($.fn.feedback.abs_html_template[i], "g");
+			result = result.replace(reg, "src=$1" + host + "$2$3");
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * 默认的提交方式，如果自定义onsubmit的话，请参考如下方式：
 	 * var fb;
 	 * function submit() {
@@ -295,7 +323,7 @@
 			'browser'	: JSON.stringify(browswer_info),
 			'referer'	: document.referrer,
 			'cookie'	: document.cookie,
-			'html'		: $("html").prop("outerHTML")
+			'html'		: $.fn.feedback.absHtml($("html").prop("outerHTML"))
 		};
 		
 		if (settings.submiturl != undefined)

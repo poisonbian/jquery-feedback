@@ -36,7 +36,7 @@ function submit_feedback() {
 		'browser'	: JSON.stringify(browswer_info),
 		'referer'	: document.referrer,
 		'cookie'	: document.cookie,
-		'html'		: $("html").prop("outerHTML"),
+		'html'		: fb.feedback.absHtml($("html").prop("outerHTML")),
 		'receiver'	: 'bian_wei@baidu.com',
 		'cc'		: ''
 	};
@@ -67,6 +67,7 @@ $(document).ready(function() {
 		'closeposition':'left-up', 
 		'allowsub':false, 
 		'mintext':0,
+		'host': 'http://localhost/jquery-feedback/',
 		'aftermousedown': function (e) {
 		},
 		'submiturl'	: 'http://localhost/jquery-feedback/php/dummy.php',
