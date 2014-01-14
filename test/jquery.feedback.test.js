@@ -37,7 +37,8 @@ function submit_feedback() {
 		'referer'	: document.referrer,
 		'cookie'	: document.cookie,
 		'html'		: fb.feedback.absHtml($("html").prop("outerHTML")),
-		'receiver'	: 'bian_wei@baidu.com',
+		'subject'	: '[某某平台]用户反馈',
+		'receiver'	: '*****',
 		'cc'		: ''
 	};
 	
@@ -70,7 +71,7 @@ $(document).ready(function() {
 		'host': 'http://localhost/jquery-feedback/',
 		'aftermousedown': function (e) {
 		},
-		'submiturl'	: 'http://localhost/jquery-feedback/php/dummy.php',
+		'submiturl'	: 'http://localhost/jquery-feedback/php/feedback.php',
 		'onsubmit': submit_feedback
 	});
 });

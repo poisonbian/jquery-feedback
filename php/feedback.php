@@ -6,6 +6,7 @@ class Feedback
 	var $receiver;
 	var $cc;
 	var $body;
+	var $subject;
 	
 	private function trans($str)
 	{
@@ -67,9 +68,15 @@ class Feedback
 	{
 		$mail = new phpmailer();
 		
-		$mail->From = "bian_wei@baidu.com";
+		$mail->From = "poisonbian@gmail.com";
 		$mail->FromName = 'JQuery Feedback';
 		$mail->CharSet = "utf-8";
+		
+		$mail->IsSMTP();
+		$mail->SMTPAuth = true;
+		$mail->Host = "smtp.qq.com";
+		$mail->Username = "*****";
+		$mail->Password = "*****";
 		
 		$receiver_array = explode(",", $this->receiver);
 		foreach ($receiver_array as $receiver)
@@ -90,7 +97,7 @@ class Feedback
 			$mail->AddCC($receiver, $receiver);
 		}		
 		
-		$mail->Subject = "[WARNING]用户反馈";
+		$mail->Subject = $this->subject;
 		$mail->Body = $this->body;
 		$mail->AddAttachment("att_" . getmypid() . ".html", "att_" . getmypid() . ".html");
 		$mail->Send();
@@ -116,6 +123,7 @@ class Feedback
 		
 		$this->body = ob_get_contents();
 		ob_end_clean(); 
+		$this->subject = array_key_exists('subject', $_POST) ? $_POST['subject'] : '[WARNING]用户反馈';
 
 		file_put_contents("att_" . getmypid() . ".html", stripslashes($_POST['html']));
 		$this->send_mail();
