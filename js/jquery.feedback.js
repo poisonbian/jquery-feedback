@@ -154,9 +154,9 @@
 	</div>';
 	//$.fn.feedback.abs_html_template = ["src=['\"](^(?!http)[^'\"]*)['\"]"];
 	$.fn.feedback.abs_html_template = [
-        "src=(['\"])((?!http://)[^'\"].*)(['\"])",
-        "href=(['\"])((?!http://)[^'\"].*)(['\"])",
-        "url=([\(])((?!http://)[^'\"].*)([\)])"
+        "(src=)(['\\\"])((?!http://)[^'\\\"]*)(['\"])",
+        "(href=)(['\\\"])((?!http://)[^'\\\"]*)(['\"])",
+        "(url=)([\\\(])((?!http://)[^'\"]*)([\\\)])"
     ];
 	
 	/**
@@ -289,8 +289,8 @@
 		var reg;
 		for (var i = 0, len = $.fn.feedback.abs_html_template.length; i < len; i++)
 		{
-			reg = new RegExp($.fn.feedback.abs_html_template[i], "g");
-			result = result.replace(reg, "src=$1" + host + "$2$3");
+			reg = new RegExp($.fn.feedback.abs_html_template[i], "gi");
+			result = result.replace(reg, "$1$2" + host + "$3$4");
 		}
 		
 		return result;
