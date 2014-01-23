@@ -91,6 +91,7 @@
 		'maxtext'	: 2000000,	//可点选元素的最大字数
 		'allowsub'	: true,		// 选中父元素之后，是否还保留子元素
 		'host'		: undefined,	// 主机前缀，用于替换资源路径，获得absHtml时必须指定
+		'offsetmp'	: true,		// 计算shade时，补充计算margin和padding（否则看起来和div内部的文字、图片等元素会有偏移）
 		
 		/** 和弹出dialog相关的配置 **/
 		'initdialog': undefined,
@@ -514,12 +515,45 @@
 	}
 	
 	/**
+	 * 删除px字样
+	 * @param str
+	 */
+	function removePx(str)
+	{
+		return parseInt(str.replace("px", ""));
+	}
+	
+	/**
+	 * 获得margin和padding的数值
+	 */
+	function getMP(target)
+	{
+		var margin_top = removePx(target.css("margin-top"));
+		var margin_left = removePx(target.css("margin-left"));
+		
+		var padding_top = removePx(target.css("padding-top"))
+		var padding_left = removePx(target.css("padding-left"));
+		
+		return {
+			'left'	: margin_left + padding_left,
+			'top'	: margin_top + padding_top
+		};
+	}
+	
+	/**
 	 * 生成一个Shade元素
 	 */
 	function getShade(target, settings, shade_id)
 	{
 		var l = target.offset().left;
 		var t = target.offset().top;
+		
+		if (settings.offsetmp)
+		{
+			var mp = getMP(target);
+			l += mp.left;
+			t += mp.top;
+		}
 
 		var shade = top.document.createElement("div");
 		shade.style.width = target.width() + "px";
@@ -558,6 +592,13 @@
 	{
 		var l = target.offset().left;
 		var t = target.offset().top;
+		
+		if (settings.offsetmp)
+		{
+			var mp = getMP(target);
+			l += mp.left;
+			t += mp.top;
+		}
 		
 		if (settings.closeposition === "right-up")
 		{
