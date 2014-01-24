@@ -121,7 +121,7 @@
 		'aftermousedown'	: undefined,	
 		
 		/** 以下一般不需要修改 **/
-		'dialogclass'	: 'jquery-feedback-drag',		// dialog元素的class
+		'dialogclass'	: 'jquery-feedback-container',		// dialog元素的class
 		'dialogtopclass': 'jquery-feedback-drag-top',	// dialog元素顶部的class
 		'feedbackclass'	: 'jquery-feedback-shade',		// feedback shade的class
 		'closeclass'	: 'jquery-feedback-close',		// feedback close按钮的class
@@ -154,8 +154,8 @@
 	$.fn.feedback.init_flag = false;
 	
 	$.fn.feedback.dialog_button_html = '<div class="jquery-feedback-drag-bottom">\
-		<button class="jquery-feedback-button white submit">提交反馈</button>\
-		<button class="jquery-feedback-button white cancel">取消</button>\
+		<button class="jquery-feedback-button submit">提交反馈</button>\
+		<button class="jquery-feedback-button cancel">取消</button>\
 	</div>';
 	//$.fn.feedback.abs_html_template = ["src=['\"](^(?!http)[^'\"]*)['\"]"];
 	$.fn.feedback.abs_html_template = [

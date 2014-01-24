@@ -1,6 +1,5 @@
 <?php
 require("PHPMailer/class.phpmailer.php");
-	
 class Feedback 
 {
 	var $receiver;
@@ -8,75 +7,19 @@ class Feedback
 	var $body;
 	var $subject;
 	
-	private function trans($str)
-	{
-		//return iconv('UTF-8', 'GBK//IGNORE', $str);
-		return $str;
-	}
-	
-	function print_r_html($arr, $style = "display: none; margin-left: 10px;") {
-		if (gettype($arr) != "array")
-		{
-			var_dump($arr);
-			return;
-		}
-		static $i = 0;
-		$i++;
-		echo "\n<div id=\"array_tree_$i\" class=\"array_tree\">\n";
-		foreach ( $arr as $key => $val ) {
-			switch (gettype ( $val )) {
-				case "array" :
-					echo "<a onclick=\"document.getElementById('";
-					echo "array_tree_element_$i" . "').style.display = ";
-					echo "document.getElementById('array_tree_element_$i";
-					echo "').style.display == 'block' ?";
-					echo "'none' : 'block';\"\n";
-					echo "name=\"array_tree_link_$i\" href=\"#array_tree_link_$i\">" . htmlspecialchars ( $key ) . "</a><br />\n";
-					echo "<div class=\"array_tree_element_\" id=\"array_tree_element_$i\" style=\"$style\">";
-					echo print_r_html ( $val );
-					echo "</div>";
-					break;
-				case "integer" :
-					echo "<b>" . htmlspecialchars ( $key ) . "</b> => <i>" . htmlspecialchars ( $val ) . "</i><br />";
-					break;
-				case "double" :
-					echo "<b>" . htmlspecialchars ( $key ) . "</b> => <i>" . htmlspecialchars ( $val ) . "</i><br />";
-					break;
-				case "boolean" :
-					echo "<b>" . htmlspecialchars ( $key ) . "</b> => ";
-					if ($val) {
-						echo "true";
-					} else {
-						echo "false";
-					}
-					echo "<br />\n";
-					break;
-				case "string" :
-					echo "<b>" . htmlspecialchars ( $key ) . "</b> => <code>" . htmlspecialchars ( $val ) . "</code><br />";
-					break;
-				default :
-					echo "<b>" . htmlspecialchars ( $key ) . "</b> => " . gettype ( $val ) . "<br />";
-					break;
-			}
-			echo "\n";
-		}
-		echo "</div>\n";
-	}
-	        	
-	
 	function send_mail()
 	{
 		$mail = new phpmailer();
 		
-		$mail->From = "mail@hi2future.com";
-		$mail->FromName = 'JQuery Feedback';
+		$mail->From = "fankui@mail178.com";
+		$mail->FromName = 'JQuery反馈插件';
 		$mail->CharSet = "utf-8";
 		
 		$mail->IsSMTP();
 		$mail->SMTPAuth = true;
-		$mail->Host = "smtp.ym.163.com";
-		$mail->Username = "mail@hi2future.com";
-		$mail->Password = "m=e2.-e_p%2&.";
+		$mail->Host = "mail.mail178.com";
+		$mail->Username = "fankui@mail178.com";
+		$mail->Password = "fankui";
 		
 		$receiver_array = explode(",", $this->receiver);
 		foreach ($receiver_array as $receiver)

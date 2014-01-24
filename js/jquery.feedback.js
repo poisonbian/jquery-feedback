@@ -1,3 +1,5 @@
+console.log(document.domain);
+
 function loadScript(url, judge, callback) {
 	if (judge != null) {
 		judge = eval(judge);

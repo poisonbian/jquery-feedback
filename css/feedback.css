@@ -2,7 +2,7 @@
 .jquery-feedback-close {
 	cursor:pointer;
 }
-.jquery-feedback-drag {	
+.jquery-feedback-container {	
 	position: fixed;
 	left:900px;
 	top:150px;
@@ -21,7 +21,7 @@
 	_top: expression(documentElement.scrollTop + this.offsetHeight + 18);
 }
 /** 可用于拖拽的头部 **/
-.jquery-feedback-drag-top {
+.jquery-feedback-container > .jquery-feedback-drag-top {
 	height:30px;
 	background:#999999;
 	line-height:30px;
@@ -31,34 +31,29 @@
 	color:#FFFFFF;
 }
 /** 自定义表单 **/
-.jquery-feedback-drag-content {
+.jquery-feedback-container > .jquery-feedback-drag-content {
 	margin:5px;
 }
 /** 生成的提交取消按钮 **/
-.jquery-feedback-drag-bottom {
+.jquery-feedback-container > .jquery-feedback-drag-bottom {
 	position:absolute;
 	bottom:0px;
 	width:100%;
 	text-align:center;
 }
 
-/** white, gray, blue 三种样式**/
-.jquery-feedback-button{
+.jquery-feedback-container .jquery-feedback-button {
     display:inline-block;
     text-decoration:none;
     font:bold 12px/12px HelveticaNeue, Arial;
     padding:8px 11px;
-    color:#555;
     border:1px solid #dedede;
     -webkit-border-radius:3px;
     -moz-border-radius:3px;
     border-radius:3px;
 	cursor:pointer;
 	margin:5px 10px;
-}
-
-.jquery-feedback-button.white{
-    background:#f5f5f5;
+	background:#f5f5f5;
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#f0f0f0'); /*  IE */
     background:-webkit-gradient(linear, left top, left bottom, from(#f9f9f9), to(#f0f0f0)); /*  WebKit */
     background:-moz-linear-gradient(top,  #f9f9f9, #f0f0f0);
@@ -69,7 +64,8 @@
     -moz-box-shadow:0 1px 1px #eaeaea, inset 0 1px 0 #fbfbfb;
     box-shadow:0 1px 1px #eaeaea, inset 0 1px 0 #fbfbfb;
 }
-.jquery-feedback-button.white:hover{
+
+.jquery-feedback-container .jquery-feedback-button:hover {
     background:#f4f4f4;
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#efefef', endColorstr='#f8f8f8'); /*  IE */
     background:-webkit-gradient(linear, left top, left bottom, from(#efefef), to(#f8f8f8)); /*  WebKit */

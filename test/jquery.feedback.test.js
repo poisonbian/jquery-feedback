@@ -38,7 +38,7 @@ function submit_feedback() {
 		'cookie'	: document.cookie,
 		'html'		: fb.feedback.absHtml($("html").prop("outerHTML")),
 		'subject'	: '[某某平台]用户反馈',
-		'receiver'	: 'poisonbian@qq.com',
+		'receiver'	: 'pm@mail178.com',
 		'cc'		: ''
 	};
 	
