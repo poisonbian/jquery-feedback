@@ -38,7 +38,7 @@ function submit_feedback() {
 		'cookie'	: document.cookie,
 		'html'		: fb.feedback.absHtml($("html").prop("outerHTML")),
 		'subject'	: '[某某平台]用户反馈',
-		'receiver'	: '*****',
+		'receiver'	: 'poisonbian@qq.com',
 		'cc'		: ''
 	};
 	
@@ -63,11 +63,13 @@ function submit_feedback() {
 
 $(document).ready(function() {
 	fb = $("body").feedback({
+		'feedbackcss':'css/feedback.css',
 		'initdialog':"#feedback",
 		'dialogid':'#container_drag',
 		'closeposition':'left-up', 
 		'allowsub':false, 
 		'mintext':0,
+		'offsetmp':true,
 		'host': 'http://localhost/jquery-feedback/',
 		'aftermousedown': function (e) {
 		},

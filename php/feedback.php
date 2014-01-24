@@ -68,15 +68,15 @@ class Feedback
 	{
 		$mail = new phpmailer();
 		
-		$mail->From = "poisonbian@gmail.com";
+		$mail->From = "mail@hi2future.com";
 		$mail->FromName = 'JQuery Feedback';
 		$mail->CharSet = "utf-8";
 		
 		$mail->IsSMTP();
 		$mail->SMTPAuth = true;
-		$mail->Host = "smtp.qq.com";
-		$mail->Username = "*****";
-		$mail->Password = "*****";
+		$mail->Host = "smtp.ym.163.com";
+		$mail->Username = "mail@hi2future.com";
+		$mail->Password = "m=e2.-e_p%2&.";
 		
 		$receiver_array = explode(",", $this->receiver);
 		foreach ($receiver_array as $receiver)
