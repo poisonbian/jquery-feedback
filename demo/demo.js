@@ -72,6 +72,7 @@ $(document).ready(function() {
 		'offsetmp':true,
 		'host': 'http://localhost/jquery-feedback/',
 		'aftermousedown': function (e) {
+			console.log(e);
 		},
 		'submiturl'	: 'http://localhost/jquery-feedback/php/feedback.php',
 		'onsubmit': submit_feedback

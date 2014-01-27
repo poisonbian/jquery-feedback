@@ -98,6 +98,7 @@
 		/** 和弹出dialog相关的配置 **/
 		'initdialog': undefined,
 		'dialogid'	: undefined,
+		'addbutton'	: true,
 		
 		/** 可以设置的回调事件 **/
 		'targetvalid'	: undefined,	// 判断元素是否可选
@@ -152,12 +153,34 @@
 	$.fn.feedback.shade_temp = undefined;
 	$.fn.feedback.close_temp = undefined;
 	$.fn.feedback.init_flag = false;
+	$.fn.feedback.default_feedback_form = '\
+		<div class="jquery-feedback-drag-top">反馈</div>\
+		<div class="jquery-feedback-drag-content">\
+			<form id="form_feedback">\
+				错误类型:<br />\
+				<select id="feedback_bug_type" name="feedback_bug_type" style="width:100%;">\
+					<option value="">-----</option>\
+					<option value="图片不展示或链接无法点击">图片不展示或链接无法点击</option>\
+					<option value="内容错误">内容错误</option>\
+					<option value="展现样式错误">展现样式错误</option>\
+					<option value="产品建议">产品建议</option>\
+				</select>\
+				<br />\
+				联系方式(邮箱/电话/QQ):\
+				<br />\
+				<input id="feedback_contact" name="feedback_contact" style="width:99%;">\
+				<br />\
+				问题描述:\
+				<br />\
+				<textarea id="feedback_description" name="feedback_description" style="width:98%;" rows="4"></textarea>\
+			</form>\
+		</div>';
 	
 	$.fn.feedback.dialog_button_html = '<div class="jquery-feedback-drag-bottom">\
 		<button class="jquery-feedback-button submit">提交反馈</button>\
 		<button class="jquery-feedback-button cancel">取消</button>\
 	</div>';
-	//$.fn.feedback.abs_html_template = ["src=['\"](^(?!http)[^'\"]*)['\"]"];
+
 	$.fn.feedback.abs_html_template = [
         "(src=)(['\\\"])((?!http://)[^'\\\"]*)(['\"])",
         "(href=)(['\\\"])((?!http://)[^'\\\"]*)(['\"])",
@@ -442,27 +465,33 @@
 	 */
 	function init_dialog($this, settings)
 	{
-		if (settings.dialogid != undefined)
+		if (settings.dialogid === undefined)
 		{
-			$(settings.dialogid).addClass(settings.dialogclass);
-			$(settings.dialogid).hide();
+			return;
+		}
+		var html = trim($(settings.dialogid).html());
+		if (html === "")
+		{
+			$(settings.dialogid).html($.fn.feedback.default_feedback_form);
 		}
 		
-		if (settings.initdialog != undefined)
+		$(settings.dialogid).addClass(settings.dialogclass);
+		
+		$(settings.initdialog).click(function (e) {
+			e.preventDefault();
+			if (! $this.feedback.init_flag)
+			{
+				$this.feedback.init();
+			}
+			
+			$(settings.dialogid).show();
+			$this.feedback.start();
+		});
+		
+		if (settings.addbutton)
 		{
-			$(settings.initdialog).click(function (e) {
-				e.preventDefault();
-				if (! $this.feedback.init_flag)
-				{
-					$this.feedback.init();
-				}
-				
-				$(settings.dialogid).show();
-				$this.feedback.start();
-			});
+			init_dialog_button($this, settings);
 		}
-
-		init_dialog_button($this, settings);
 	}
 	
 	/**
@@ -497,6 +526,10 @@
 	 */
 	function trim(str)
 	{
+		if (typeof(str) != "string")
+		{
+			return "";
+		}
 		return str.replace(/(^\s*)|(\s*$)/g, "");
 	}
 	
