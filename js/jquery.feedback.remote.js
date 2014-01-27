@@ -24,7 +24,7 @@ function loadScript(url, judge, callback) {
 loadScript("http://libs.baidu.com/jquery/1.8.3/jquery.min.js", "window.jQuery", function() {
 	loadScript("http://libs.baidu.com/json/json2/json2.js", "window.JSON", function () {
 		loadScript("js/jquery.feedback.js", null, function() {
-	    	loadScript("test/jquery.feedback.test.js", null, function() {
+	    	loadScript("demo/demo.js", null, function() {
 
 	        });
 	    });
