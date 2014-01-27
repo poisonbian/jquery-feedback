@@ -23,20 +23,20 @@ jquery-feedback
 
 文件说明
 -----
-css/feedback.css					本地版本的核心css文件
+	css/feedback.css					本地版本的核心css文件
 
-js/jquery.feedback.js				定义了feedback核心功能的js代码（基于JQuery插件形式）
-js/jquery.feedback.remote.js		目前的版本暂时无需关心
-js/jquery.min.js					jQuery 1.8.3的最小化版本，如有需要，可使用
-js/json2.min.js						json2的最小化版本（使IE7及以下版本可以支持JSON格式）
+	js/jquery.feedback.js				定义了feedback核心功能的js代码（基于JQuery插件形式）
+	js/jquery.feedback.remote.js		目前的版本暂时无需关心
+	js/jquery.min.js					jQuery 1.8.3的最小化版本，如有需要，可使用
+	js/json2.min.js						json2的最小化版本（使IE7及以下版本可以支持JSON格式）
 
-php/feedback.php					服务端样例代码（发出通知邮件）
-php/dummy.php						服务端样例代码（不做任何处理）
-php/PHPMailer.php					php发邮件的库
+	php/feedback.php					服务端样例代码（发出通知邮件）
+	php/dummy.php						服务端样例代码（不做任何处理）
+	php/PHPMailer.php					php发邮件的库
 
-main.html							样例html代码1，简单页面（有div和表格）
-baidu.html							样例html代码2，基于百度搜索结果页面，去除了一些无法远程调用的资源引入
-remote.html							目前的版本暂时无需关心
+	main.html							样例html代码1，简单页面（有div和表格）
+	baidu.html							样例html代码2，基于百度搜索结果页面，去除了一些无法远程调用的资源引入
+	remote.html							目前的版本暂时无需关心
 
 使用方法
 -----
