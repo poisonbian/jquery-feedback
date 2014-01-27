@@ -76,7 +76,7 @@
 	$.fn.feedback.pluginName = "feedback";
 	$.fn.feedback.defaults = {
 		/** 和样式相关的配置 **/
-		'unit'		: 'div,span,p,h1,h2,h3,h4,h5,h6,td,th,tr,table,a,strong,em,input,i,button,textarea,b,img,hr',	// 允许的标签
+		'unit'		: 'div,span,p,h1,h2,h3,h4,h5,h6,td,th,a,strong,em,input,i,button,textarea,b,img,hr',	// 允许的标签
 		'background': "#00FF00",	// 鼠标点击后的样式 
 		'opacity'	: 50,			// 鼠标点击后的透明度
 		'border'		: undefined, // shade元素边框样式, 样例："1px solid #000000",
