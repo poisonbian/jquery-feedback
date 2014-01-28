@@ -45,24 +45,24 @@ jquery-feedback
 
 1. 引入文件，Jquery、json2、feedback插件定义、自己的js代码（也可以直接写在页面中，详细写法见后面一段）
 
-	<script type="text/javascript" src="js/jquery.min.js"></script>
-	<!--[if lte IE 7]>
-	<script type="text/javascript" src="js/json2.min.js"></script>
-	<![endif]-->
-	<script type="text/javascript" src="js/jquery.feedback.js"></script>
-	<script type="text/javascript" src="demo/demo.js"></script>	
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<!--[if lte IE 7]>
+		<script type="text/javascript" src="js/json2.min.js"></script>
+		<![endif]-->
+		<script type="text/javascript" src="js/jquery.feedback.js"></script>
+		<script type="text/javascript" src="demo/demo.js"></script>	
 
 2. 定义一个按钮或者a标签，点击后开始执行反馈流程
-
-	<button id="feedback">反馈</button>
+		
+		<button id="feedback">反馈</button>
 		
 3. 定义一个反馈框的div，并默认隐藏，并赋一个唯一id
 
-	<div id="container_drag" style="display:none;">
-	</div>
+		<div id="container_drag" style="display:none;">
+		</div>
 
 ### javascript代码
-最简单的调用方式
+		最简单的调用方式
 		$(document).ready(function() {
 			fb = $("body").feedback({
 				'feedbackcss':'css/feedback.css',
@@ -81,16 +81,16 @@ dialogid: 反馈框的div，见html代码
 
 host: 资源前缀，用于替换html代码中的资源路径。
 
-	例如host设置为http://www.baidu.com/，若代码中有css资源定义为
-	<link rel="stylesheet" type="text/css" href="a.css">
-	
-	那么反馈的时候，提交的html代码中就会变成	
-	<link rel="stylesheet" type="text/css" href="http://www.baidu.com/a.css">
-	
-	这样的话，收到反馈直接打开，就可以正确地使用到对应的css资源了
-	除此之外js、img也会做相同处理
-	
-	大部分情况下，反馈邮件中的附件邮件即可直接在浏览器中打开查看效果了
+> 例如host设置为http://www.baidu.com/，若代码中有css资源定义为
+> <link rel="stylesheet" type="text/css" href="a.css">
+> 
+> 那么反馈的时候，提交的html代码中就会变成	
+> <link rel="stylesheet" type="text/css" href="http://www.baidu.com/a.css">
+> 
+> 这样的话，收到反馈直接打开，就可以正确地使用到对应的css资源了
+> 除此之外js、img也会做相同处理
+> 
+> 大部分情况下，反馈邮件中的附件邮件即可直接在浏览器中打开查看效果了
 	
 submiturl: 用户反馈的内容提交的url（以JSON格式post过去）
 
@@ -103,22 +103,22 @@ submiturl: 用户反馈的内容提交的url（以JSON格式post过去）
 
 反馈数据说明
 -----
-默认反馈数据的代码如下：
-	var fb_result = $.fn.feedback.getResultString({
-		'id'	: 'attr("id")',
-		'html'	: 'prop("outerHTML")'
-	});
-	var browswer_info = $.fn.feedback.browserInfo();
-	var data = {
-		'url'		: document.URL,
-		'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
-		'feedback'	: fb_result,
-		'browser'	: JSON.stringify(browswer_info),
-		'referer'	: document.referrer,
-		'cookie'	: document.cookie,
-		'html'		: $.fn.feedback.absHtml($("html").prop("outerHTML"))
-	};
-	
+		默认反馈数据的代码如下：
+		var fb_result = $.fn.feedback.getResultString({
+			'id'	: 'attr("id")',
+			'html'	: 'prop("outerHTML")'
+		});
+		var browswer_info = $.fn.feedback.browserInfo();
+		var data = {
+			'url'		: document.URL,
+			'form'		: JSON.stringify($(settings.dialogid).find("form").serializeArray()),
+			'feedback'	: fb_result,
+			'browser'	: JSON.stringify(browswer_info),
+			'referer'	: document.referrer,
+			'cookie'	: document.cookie,
+			'html'		: $.fn.feedback.absHtml($("html").prop("outerHTML"))
+		};
+
 传回服务端的数据以JSON格式传输
 
 url: 当前页面的url地址
