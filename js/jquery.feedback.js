@@ -477,7 +477,7 @@
 		
 		$(settings.dialogid).addClass(settings.dialogclass);
 		
-		$(settings.initdialog).click(function (e) {
+		$(settings.initdialog).on('click', function (e) {
 			e.preventDefault();
 			if (! $this.feedback.init_flag)
 			{
