@@ -26,7 +26,7 @@
 			drag_jq(settings, settings.dialogid);
 			$(settings.dialogid).attr(settings.flagdialog, $.fn.feedback.DIALOG_PREVENT);
 			$(settings.dialogid).css("zIndex", settings.zIndex + 2);
-			$(settings.dialogid).find(".submit").on('click', function () {
+			$(settings.dialogid).on('click', '.submit', function () {
 				if (settings.onsubmit === undefined)
 				{
 					default_onsubmit();
@@ -37,7 +37,7 @@
 				}
 			});
 			
-			$(settings.dialogid).find(".cancel").on('click', function () {
+			$(settings.dialogid).on('click', '.cancel', function () {
 				settings.beforecancel === undefined || settings.beforecancel();
 				$.fn.feedback.closeDialog($.fn.feedback.$this, settings);
 				settings.aftercancel === undefined || settings.aftercancel();
@@ -477,7 +477,7 @@
 		
 		$(settings.dialogid).addClass(settings.dialogclass);
 		
-		$(settings.initdialog).on('click', function (e) {
+		$this.on('click', settings.initdialog, function (e) {
 			e.preventDefault();
 			if (! $this.feedback.init_flag)
 			{
