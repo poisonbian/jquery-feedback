@@ -187,9 +187,7 @@
         "(url=)([\\\(])((?!http://)[^'\"]*)([\\\)])"
     ];
 	
-	/**
-	 * 返回配置
-	 */
+	// 返回配置
 	$.fn.feedback.getOption = function () {
 		var settings = $.fn.feedback.$this.data($.fn.feedback.pluginName);	
 		if (settings === undefined)
@@ -199,9 +197,7 @@
 		return settings;
 	};
 	
-	/**
-	 * 增加配置
-	 */
+	// 增加可选的html tag配置，例如增加一个<h2>，即addUnit("h2")
 	$.fn.feedback.addUnit = function (unit) {
 		var unit_array = unit.split(",");
 		for (var i = 0, len = unit_array.length; i < len; i++)
@@ -210,9 +206,7 @@
 		}
 	};
 	
-	/**
-	 * 删减配置
-	 */
+	// 删减配置可选的html tag配置，例如不允许选择<h2>，即removeUnit("h2")
 	$.fn.feedback.removeUnit = function (unit) {
 		var unit_array = unit.split(",");
 		for (var i = 0, len = unit_array.length; i < len; i++)
@@ -221,9 +215,7 @@
 		}
 	};
 	
-	/**
-	 * 获得所有target，以jquery数组的形式返回
-	 */
+	// 获得所有选中的html元素（target），以jquery元素数组的形式返回
 	$.fn.feedback.getHtmlJQ = function () {
 		var html = new Array();
 		for (var i = 0, len = $.fn.feedback.target.length; i < len; i++)
@@ -238,9 +230,7 @@
 		return html;
 	};
 	
-	/**
-	 * 获得所有target，以html代码数组的形式返回
-	 */
+	// 获得所有选中的html元素（target），以html代码数组的形式返回
 	$.fn.feedback.getHtmlArray = function () {
 		var html = $.fn.feedback.getHtmlJQ();
 		return html.map(function (val) {
@@ -249,9 +239,17 @@
 	};
 	
 	/**
+	 * 根据配置，返回一个json数组
+	 * 配置格式：
 	 * {
-	 * 		'html'	: html()
-	 * 		'key'	: jquery_function_name()
+	 * 		'html'	: 'html()'
+	 * 		'key'	: 'jquery_function_name()'
+	 * }
+	 * 这表示返回的数组中，html对应的内容为所有选中元素执行对应的jquery_function_name得到的结果
+	 * 例如'html':html()
+	 * 表示结果
+	 * {
+	 * 		'html': $(页面点选元素).html()
 	 * }
 	 */
 	$.fn.feedback.getResult = function (options) {
@@ -272,18 +270,14 @@
 		return result_array;
 	}
 	
-	/**
-	 * 关闭feedback窗口
-	 */
+	// 关闭feedback窗口
 	$.fn.feedback.closeDialog = function () {
 		var settings = $.fn.feedback.getOption();
 		$(settings.dialogid).hide();
 		$.fn.feedback.stop();
 	}
 	
-	/**
-	 * 获得浏览器基础信息
-	 */
+	// 获得浏览器基础信息
 	$.fn.feedback.browserInfo = function () {
 		var x = navigator;
 		var result = {};
@@ -305,6 +299,17 @@
 	
 	/**
 	 * 将HTML中的资源引用变成绝对地址, 此时必须设置settings.host
+	 * 例如在代码中使用：
+	 * <link rel="stylesheet" href="css/style.css">
+	 * 
+	 * 仅仅将此html代码保存下来的话，由于css资源文件不存在，会导致该html文件在浏览器中显示错乱
+	 * 因此需要设置一个host，例如http://www.baidu.com
+	 * 
+	 * 则会将前面的代码自动更改为
+	 * <link rel="stylesheet" href="http://www.baidu.com/css/style.css">
+	 * 
+	 * 此函数会修改js、css、img图片的引入路径，大多数情况下，可以使html代码的显示与用户显示的内容相同
+	 * 特殊情况除外（image有反盗链机制、资源动态引入规则过于复杂等）
 	 */
 	$.fn.feedback.absHtml = function (html, host) {
 		var settings = $.fn.feedback.getOption();
@@ -322,6 +327,22 @@
 		}
 		
 		return result;
+	}
+	
+	// 将json array转化为字符串
+	$.fn.feedback.getResultString = function (options) {
+		return JSON.stringify($.fn.feedback.getResult(options));
+	};
+	
+	// 动态加载css文件
+	$.fn.feedback.addCSS = function (stylePath) {
+		var container = document.getElementsByTagName("head")[0];
+		var addStyle = document.createElement("link");
+		addStyle.rel = "stylesheet";
+		addStyle.type = "text/css";
+		addStyle.media = "screen";
+	    addStyle.href = stylePath;
+	    container.appendChild(addStyle);
 	}
 	
 	/**
@@ -434,28 +455,6 @@
 		//ok
 		return 0;
 	}
-	
-	
-	/**
-	 * 将json array转化为字符串
-	 */
-	$.fn.feedback.getResultString = function (options) {
-		return JSON.stringify($.fn.feedback.getResult(options));
-	};
-	
-	/**
-	 * 动态加载css文件
-	 */
-	$.fn.feedback.addCSS = function (stylePath) {
-		var container = document.getElementsByTagName("head")[0];
-		var addStyle = document.createElement("link");
-		addStyle.rel = "stylesheet";
-		addStyle.type = "text/css";
-		addStyle.media = "screen";
-	    addStyle.href = stylePath;
-	    container.appendChild(addStyle);
-	}
-	
 	
 	/**
 	 * 初始化dialog的操作
