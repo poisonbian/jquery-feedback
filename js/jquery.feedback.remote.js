@@ -1,4 +1,4 @@
-function loadScript(url, judge, callback) {
+function load_script(url, judge, callback) {
 	if (judge != null) {
 		judge = eval(judge);
 		if (judge) {
@@ -21,10 +21,10 @@ function loadScript(url, judge, callback) {
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
-loadScript("http://libs.baidu.com/jquery/1.8.3/jquery.min.js", "window.jQuery", function() {
-	loadScript("http://libs.baidu.com/json/json2/json2.js", "window.JSON", function () {
-		loadScript("js/jquery.feedback.js", null, function() {
-	    	loadScript("demo/demo.js", null, function() {
+load_script("http://libs.baidu.com/jquery/1.8.3/jquery.min.js", "window.jQuery", function() {
+	load_script("http://bcs.duapp.com/fankui/1.0/json2.min.js", "window.JSON", function () {
+		load_script("js/jquery.feedback.js", null, function() {
+			load_script("demo/demo.js", null, function() {
 
 	        });
 	    });
