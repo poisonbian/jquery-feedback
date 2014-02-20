@@ -537,17 +537,17 @@
 	 */
 	function bind_event(obj, settings)
 	{
-		obj.mouseover(function (e) {
+		obj.on('mouseover', function (e) {
 			settings.beforemouseover === undefined || settings.beforemouseover(e);
 			mouseover(e, obj, settings);
 			settings.aftermouseover === undefined || settings.aftermouseover(e);
 		});
-		obj.mouseout(function (e) {
+		obj.on('mouseout', function (e) {
 			settings.beforemouseout === undefined || settings.beforemouseout(e);
 			mouseout(e, obj, settings);
 			settings.aftermouseout === undefined || settings.aftermouseout(e);
 		});
-		obj.mousedown(function (e) {
+		obj.on('mousedown', function (e) {
 			settings.beforemousedown === undefined || settings.beforemousedown(e);
 			mousedown(e, obj, settings);
 			settings.aftermousedown === undefined || settings.aftermousedown(e);
@@ -613,6 +613,7 @@
 		shade.style.left = l + "px";
 		shade.style.top = t + "px";
 		shade.style.zIndex = settings.zIndex;
+		
 		var opacity = shade_id === $.fn.feedback.SHADE_TEMP ? settings.tempopacity : settings.opacity;
 		
 	    if(top.document.all)
