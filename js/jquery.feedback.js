@@ -93,7 +93,7 @@
 		'allowsub'	: true,		// 选中父元素之后，是否还保留子元素
 		'host'		: undefined,	// 主机前缀，用于替换资源路径，获得absHtml时必须指定
 		'offsetmp'	: true,		// 计算shade时，补充计算padding（例如button，则使得覆盖物与被覆盖物大小相同）
-		'feedbackcss'	: 'http://bcs.duapp.com/fankui/1.0/feedback.min.css',	// 动态加载的css文件位置
+		'feedbackcss'	: 'http://fankui.qiniudn.com/resources/1.0/feedback.min.css',	// 动态加载的css文件位置
 		
 		/** 和弹出dialog相关的配置 **/
 		'initdialog': undefined,
